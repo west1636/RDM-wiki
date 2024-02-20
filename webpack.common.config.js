@@ -71,6 +71,13 @@ var resolve = {
         'clipboard': staticPath('vendor/bower_components/clipboard/dist/clipboard.js'),
         // Needed for knockout-sortable
         'jquery.ui.sortable': staticPath('vendor/bower_components/jquery-ui/ui/widgets/sortable.js'),
+        // Needed for ace code editor in wiki
+        'ace-noconflict': staticPath('vendor/bower_components/ace-builds/src-noconflict/ace.js'),
+        'ace-ext-language_tools': staticPath('vendor/bower_components/ace-builds/src-noconflict/ext-language_tools.js'),
+        'ace-mode-markdown': staticPath('vendor/bower_components/ace-builds/src-noconflict/mode-markdown.js'),
+        'pagedown-ace-converter': addonsPath('wiki/static/pagedown-ace/Markdown.Converter.js'),
+        'pagedown-ace-sanitizer': addonsPath('wiki/static/pagedown-ace/Markdown.Sanitizer.js'),
+        'pagedown-ace-editor': addonsPath('wiki/static/pagedown-ace/Markdown.Editor.js'),
         'wikiPage': addonsPath('wiki/static/wikiPage.js'),
         'typo': staticPath('vendor/ace-plugins/typo.js'),
         'highlight-css': nodePath('highlight.js/styles/default.css'),
