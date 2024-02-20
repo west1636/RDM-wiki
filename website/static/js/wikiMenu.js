@@ -1,17 +1,11 @@
 'use strict';
-var ko = require('knockout');
-require('knockout-sortable');
-//require('knockout-sortablejs');
 var m = require('mithril');
 var iconmap = require('js/iconmap');
 var Treebeard = require('treebeard');
-var $osf = require('js/osfHelpers');
 
 var _ = require('js/rdmGettext')._;
 
 require('../css/fangorn.css');
-
-$sortWiki = $('#sortWiki');
 
 function resolveToggle(item) {
     var toggleMinus = m('i.fa.fa-minus', ' ');
@@ -99,7 +93,7 @@ function WikiMenu(data, wikiID, canEdit) {
             }
             return columns;
         },
-        hScroll: 1,    // to set auto.
+        hScroll: 1,
         showFilter : false,     // Gives the option to filter by showing the filter box.
         allowMove : false,       // Turn moving on or off.
         hoverClass : 'fangorn-hover',
@@ -108,71 +102,6 @@ function WikiMenu(data, wikiID, canEdit) {
         }
     };
     var grid = new Treebeard(tbOptions);
-    console.log('---data---');
-    console.log(data[0].children);
-    console.log('---data---');
-    var array = fixData(data[0].children);
-    console.log('---observableArray---');
-    console.log(array)
-    console.log('---observableArray---');
-    var WikiTree = new wikiTree('#sortWiki', array);
 }
-
-function fixData(data) {
-    var array = ko.observableArray()
-    var childArray = ko.observableArray()
-    for (var i=0 ; i<data.length ; i++) {
-        if (data[i].page.name === 'Home') {
-            continue;
-        }
-        if (data[i].children.length > 0) {
-            childArray = fixData(data[i].children);
-            array.push(new wikiItem({name: data[i].page.name, id: data[i].page.id, children: childArray}));
-        } else {
-            array.push(new wikiItem({name: data[i].page.name, id: data[i].page.id, children: ko.observableArray()}));
-        }
-    }
-    return array
-}
-
-function wikiItem(item) {
-    var self = this;
-    self.name = ko.observable(item.name);
-    self.id = ko.observable(item.id);
-    self.children = item.children;
-  }
-
-function ViewModel(data){
-    var self = this;
-    self.data = data;
-/*
-    self.data = ko.observableArray([{
-        "name": "A",
-        "children": ko.observableArray([{
-            "name": "A1",
-            "children": ko.observableArray([{
-                "name": "A11"
-            }, {
-                "name": "A12"
-            }])
-        }, {
-            "name": "A2"
-        }])
-    }, {
-        "name": "B",
-        "children": ko.observableArray([{
-            "name": "B1"
-        }, {
-            "name": "B2"
-        }])
-    }]);
-*/
-}
-
-var wikiTree = function(selector, data) {
-    var self = this;
-    this.viewModel = new ViewModel(data);
-    $osf.applyBindings(self.viewModel, selector);
-};
 
 module.exports = WikiMenu;
