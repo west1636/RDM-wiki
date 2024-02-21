@@ -140,7 +140,6 @@ RUN \
 COPY ./package.json ./.yarnrc ./yarn.lock ./
 COPY ./webpack* ./
 COPY ./website/static/ ./website/static/
-COPY ./website/static/js/pages/wiki/ ./website/static/js/pages/wiki/
 COPY ./scripts/translations/ ./scripts/translations/
 COPY ./website/translations/ ./website/translations/
 COPY ./website/static/js/translations/ ./website/static/js/translations/
