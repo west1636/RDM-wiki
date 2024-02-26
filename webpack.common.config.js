@@ -1,4 +1,5 @@
 var webpack = require('webpack');
+var gettextParser = require('gettext-parser');
 var path = require('path');
 var fs = require('fs');
 
@@ -53,6 +54,43 @@ var entry = {
         staticPath('css/style.css'),
     ],
 };
+
+function logEntriesToJS(logs) {
+    var lines = '';
+    var phase = 0;
+    Object.entries(logs).forEach(function(entry) {
+        if (entry[0] === '##comment##') {
+            lines += `//${entry[1]}\n`;
+            return;
+        }
+        if (phase === 0) {
+            lines += 'var _ = require(\'js/rdmGettext\')._;\n';
+            phase ++;
+        }
+        lines += `var ${entry[0]} = _('${entry[1].replace(/'/g, '\\\'')}');\n`;
+    });
+    return lines;
+}
+
+function rdmPoToJson() {
+    var acceptLanguages = ['en','ja'];
+    var translationsBaseDir = 'translations';
+    var getTextDomain = 'js_messages';
+    var poRelativePath = path.resolve(__dirname, 'website', translationsBaseDir) + '/';
+    var jsonRelativePath = path.resolve(__dirname, 'website', 'static', 'js', translationsBaseDir) + '/';
+    var localeDir = 'LC_MESSAGES';
+    var langCode;
+    var input;
+    var po;
+    for(var i=0 ; i<acceptLanguages.length ; i++){
+        langCode = acceptLanguages[i];
+        input = fs.readFileSync(poRelativePath + langCode + '/' + localeDir + '/' + getTextDomain + '.po');
+        po = gettextParser.po.parse(input);
+        fs.writeFileSync(jsonRelativePath + langCode + '.json' , JSON.stringify(po));
+    }
+}
+
+rdmPoToJson();
 
 var resolve = {
     modules: [
