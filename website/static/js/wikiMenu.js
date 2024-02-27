@@ -1,7 +1,10 @@
 'use strict';
+var ko = require('knockout');
+require('knockout-sortable');
 var m = require('mithril');
 var iconmap = require('js/iconmap');
 var Treebeard = require('treebeard');
+var $osf = require('js/osfHelpers');
 
 var _ = require('js/rdmGettext')._;
 
@@ -93,7 +96,7 @@ function WikiMenu(data, wikiID, canEdit) {
             }
             return columns;
         },
-        hScroll: 1,
+        hScroll: 1,    // to set auto.
         showFilter : false,     // Gives the option to filter by showing the filter box.
         allowMove : false,       // Turn moving on or off.
         hoverClass : 'fangorn-hover',
@@ -102,6 +105,94 @@ function WikiMenu(data, wikiID, canEdit) {
         }
     };
     var grid = new Treebeard(tbOptions);
+    var arrays = fixData(data[0].children);
+    var currentArray = arrays;
+    var WikiTree = new wikiTree('#sortWiki', currentArray);
 }
+
+function fixData(data) {
+    var oArray = ko.observableArray();
+    var oChildArray = ko.observableArray();
+    for (var i=0 ; i<data.length ; i++) {
+        if (data[i].page.name === 'Home') {
+            continue;
+        }
+        if (data[i].children.length > 0) {
+            oChildArray = fixData(data[i].children);            
+            oArray.push(new wikiItem({name: data[i].page.name, id: data[i].page.id, sortOrder: data[i].page.sort_order, children: oChildArray}));
+        } else {
+            oArray.push(new wikiItem({name: data[i].page.name, id: data[i].page.id, sortOrder: data[i].page.sort_order, children: ko.observableArray()}));
+        }
+    }
+    return oArray
+}
+
+function wikiItem(item) {
+    var self = this;
+    self.name = ko.observable(item.name);
+    self.id = ko.observable(item.id);
+    self.sortOrder = ko.observable(item.sortOrder)
+    self.children = item.children;
+    self.fold = ko.observable(false);
+  }
+
+function assignSortOrderNumber(jsonData) {
+    for (var i=0 ; i < jsonData.length ; i++) {
+        jsonData[i].sortOrder = i+1;
+        if (jsonData[i].children.length > 0) {
+            jsonData[i].children = assignSortOrderNumber(jsonData[i].children);
+        }
+    }
+    return jsonData;
+  }
+
+function ViewModel(data){
+    var self = this;
+    self.data = data;
+    self.afterMove = function(obj) {
+        var parentId = obj.item.id();
+        var fold = obj.item.fold;
+        var $display = $('.' + parentId);
+        var $angle = $('#' + parentId + ' i');
+        if (fold) {
+            $display.css('display', 'none');
+            $angle.attr('fa fa-angle-right');
+        } 
+    }
+    self.expandOrCollapse = function(obj) {
+        var parentId = obj.id();
+        //alert(parentId)
+        var $display = $('.' + parentId)
+        var $angle = $('#' + parentId + ' i');
+        if ($display.css('display') === 'list-item') {
+            $display.css('display', 'none');
+            $angle.attr('class', 'fa fa-angle-right');
+            obj.fold = true;
+        } else {
+            $display.css('display', '');
+            $angle.attr('class', 'fa fa-angle-down');
+            obj.fold = false;
+        }
+    }
+    self.submit = function() {
+        var jsonData = JSON.parse(ko.toJSON(self.data));
+        var sortedJsonData = assignSortOrderNumber(jsonData);
+        $osf.postJSON(
+            window.contextVars.wiki.urls.sort,
+            {sortedData: sortedJsonData}
+        ).done(function(response) {
+            const reloadUrl = (location.href).replace(location.search, '')
+            window.location.assign(reloadUrl);
+        }).fail(function(xhr) {
+            alert('error')
+        });
+    };
+}
+
+var wikiTree = function(selector, data) {
+    var self = this;
+    this.viewModel = new ViewModel(data);
+    $osf.applyBindings(self.viewModel, selector);
+};
 
 module.exports = WikiMenu;
