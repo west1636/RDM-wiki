@@ -163,14 +163,14 @@ function ViewModel(data){
         var parentId = obj.id();
         //alert(parentId)
         var $display = $('.' + parentId)
-        var $angle = $('#' + parentId + ' i');
+        var $angle =　$('#' + parentId).find('.angle');
         if ($display.css('display') === 'list-item') {
             $display.css('display', 'none');
-            $angle.attr('class', 'fa fa-angle-right');
+            $angle.attr('class', 'fa fa-angle-right angle');
             obj.fold = true;
         } else {
             $display.css('display', '');
-            $angle.attr('class', 'fa fa-angle-down');
+            $angle.attr('class', 'fa fa-angle-down angle');
             obj.fold = false;
         }
     }
