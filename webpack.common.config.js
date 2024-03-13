@@ -35,7 +35,7 @@ var entry = {
         'bootstrap-datepicker',
         'select2',
         'dropzone',
-        'knockout-sortable',
+        //'knockout-sortable',
         'loaders.css',
         'treebeard',
         'lodash.get',
@@ -101,7 +101,8 @@ var resolve = {
     extensions: ['.*', '.es6.js', '.js', '.min.js', '.json'],
     // Need to alias libraries that aren't managed by bower or npm
     alias: {
-        'knockout-sortable': staticPath('vendor/knockout-sortable/knockout-sortable.js'),
+        //use knockout-sortable v1.2.2 when wiki sort
+        'knockout-sortable': staticPath('vendor/knockout-sortable/knockout-sortable-1.2.2.js'),
         'bootstrap-editable': staticPath('vendor/bootstrap-editable-custom/js/bootstrap-editable.js'),
         'jquery-blockui': staticPath('vendor/jquery-blockui/jquery.blockui.js'),
         'Caret.js': staticPath('vendor/bower_components/Caret.js/dist/jquery.caret.min.js'),
