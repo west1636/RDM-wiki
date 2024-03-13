@@ -148,6 +148,21 @@ function wikiItem(item) {
     self.sortOrder = ko.observable(item.sortOrder)
     self.children = item.children;
     self.fold = ko.observable(false);
+
+    self.expandOrCollapse = function() {
+        var parentId = self.id();
+        var $display = $('.' + parentId)
+        var $angle =　$('#' + parentId).find('.angle');
+        if ($display.css('display') === 'list-item') {
+            $display.css('display', 'none');
+            $angle.attr('class', 'fa fa-angle-right angle');
+        } else {
+            $display.css('display', '');
+            $angle.attr('class', 'fa fa-angle-down angle');
+        }
+        self.fold(!self.fold());
+    }
+
   }
 
 function assignSortOrderNumber(jsonData) {
@@ -176,11 +191,7 @@ function assignSortOrderNumber(jsonData) {
         }
         return true;
     }
-    var flag = countItems(data);
-    console.log('---afterMove sorting num---')
-    console.log(totalCount);
-    console.log('---afterMove sorting num---')
-    return flag && totalCount === originalCount;
+    return countItems(data) && totalCount === originalCount;
 }
 
 function ViewModel(data, totalCtn){
@@ -210,28 +221,13 @@ function ViewModel(data, totalCtn){
         $SaveBtn.prop('disabled', false);
         previousState = ko.toJS(self.data());
         var parentId = obj.item.id();
-        var fold = obj.item.fold;
+        var fold = obj.item.fold();
         var $display = $('.' + parentId);
         var $angle = $('#' + parentId + ' i');
         if (fold) {
             $display.css('display', 'none');
             $angle.attr('fa fa-angle-right');
         } 
-    }
-    self.expandOrCollapse = function(obj) {
-        var parentId = obj.id();
-        //alert(parentId)
-        var $display = $('.' + parentId)
-        var $angle =　$('#' + parentId).find('.angle');
-        if ($display.css('display') === 'list-item') {
-            $display.css('display', 'none');
-            $angle.attr('class', 'fa fa-angle-right angle');
-            obj.fold = true;
-        } else {
-            $display.css('display', '');
-            $angle.attr('class', 'fa fa-angle-down angle');
-            obj.fold = false;
-        }
     }
     self.submit = function() {
         var jsonData = JSON.parse(ko.toJSON(self.data));
