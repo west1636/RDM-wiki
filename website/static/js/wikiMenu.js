@@ -1,5 +1,6 @@
 'use strict';
 var ko = require('knockout');
+require('knockout-sortable');
 var m = require('mithril');
 var iconmap = require('js/iconmap');
 var Treebeard = require('treebeard');
