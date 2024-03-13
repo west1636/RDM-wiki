@@ -1,6 +1,5 @@
 'use strict';
 var ko = require('knockout');
-require('knockout-sortable');
 var m = require('mithril');
 var iconmap = require('js/iconmap');
 var Treebeard = require('treebeard');
@@ -9,6 +8,8 @@ var $osf = require('js/osfHelpers');
 var _ = require('js/rdmGettext')._;
 
 require('../css/fangorn.css');
+
+var previousState;
 
 function resolveToggle(item) {
     var toggleMinus = m('i.fa.fa-minus', ' ');
@@ -106,25 +107,37 @@ function WikiMenu(data, wikiID, canEdit) {
     };
     var grid = new Treebeard(tbOptions);
     var arrays = fixData(data[0].children);
-    var currentArray = arrays;
-    var WikiTree = new wikiTree('#sortWiki', currentArray);
+    console.log('---arrays---')
+    console.log(arrays[0])
+    console.log('---arrays---')
+    var currentArray = arrays[0];
+    var totalCtn = arrays[1]
+    var WikiTree = new wikiTree('#sortWiki', currentArray, totalCtn);
 }
 
 function fixData(data) {
-    var oArray = ko.observableArray();
-    var oChildArray = ko.observableArray();
-    for (var i=0 ; i<data.length ; i++) {
-        if (data[i].page.name === 'Home') {
+    var koArray = ko.observableArray();
+    var koChildArray = ko.observableArray();
+    var totalCtn = 0; // 初期値を0に設定
+    for (var i = 0; i < data.length; i++) {
+        var name = data[i].page ? data[i].page.name : data[i].name;
+        var id = data[i].page ? data[i].page.id : data[i].id;
+        var sort_order = data[i].page ? data[i].page.sort_order : data[i].sort_order;
+        if (name === 'Home') {
             continue;
         }
+        totalCtn++;
         if (data[i].children.length > 0) {
-            oChildArray = fixData(data[i].children);            
-            oArray.push(new wikiItem({name: data[i].page.name, id: data[i].page.id, sortOrder: data[i].page.sort_order, children: oChildArray}));
+            var koChildArrayData = fixData(data[i].children);
+            koChildArray = fixData(data[i].children)[0];            
+            var childCount = koChildArrayData[1]; // 子アイテムの数を取得
+            totalCtn += childCount; // 子アイテムの数を合計に加える
+            koArray.push(new wikiItem({name: name, id: id, sortOrder:sort_order, children: koChildArray}));
         } else {
-            oArray.push(new wikiItem({name: data[i].page.name, id: data[i].page.id, sortOrder: data[i].page.sort_order, children: ko.observableArray()}));
+            koArray.push(new wikiItem({name: name, id: id, sortOrder: sort_order, children: ko.observableArray()}));
         }
     }
-    return oArray
+    return [koArray, totalCtn];
 }
 
 function wikiItem(item) {
@@ -146,10 +159,55 @@ function assignSortOrderNumber(jsonData) {
     return jsonData;
   }
 
-function ViewModel(data){
+  function checkTotalCtn(data, originalCount) {
+    var totalCount = 0;
+    function countItems(data) {
+        for (var i = 0; i < data.length; i++) {
+            totalCount++;
+            if (totalCount > originalCount) {
+                return false;
+            }
+            if (data[i].children && data[i].children().length > 0) {
+                if (!countItems(data[i].children())) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+    var flag = countItems(data);
+    console.log('---afterMove sorting num---')
+    console.log(totalCount);
+    console.log('---afterMove sorting num---')
+    return flag && totalCount === originalCount;
+}
+
+function ViewModel(data, totalCtn){
     var self = this;
     self.data = data;
     self.afterMove = function(obj) {
+        console.log('---afterMove original num---')
+        console.log(totalCtn);
+        console.log('---afterMove original num---')
+        console.log(previousState)
+        var $SaveBtn = $('#treeSave');
+        if (!checkTotalCtn(self.data(), totalCtn)) {
+            if (previousState) {
+                console.log('sort error')
+                var koPreviousStateData = fixData(previousState);
+                var koPreviousState = koPreviousStateData[0];
+                console.log('---privious  rawdata---')
+                console.log(koPreviousState)
+                console.log('---privious  rawdata---')
+                //self.data(koPreviousState);
+                console.log(self.data)
+            }
+            $SaveBtn.prop('disabled', true);
+            alert('sort error! Please reload.');
+            return;
+        }
+        $SaveBtn.prop('disabled', false);
+        previousState = ko.toJS(self.data());
         var parentId = obj.item.id();
         var fold = obj.item.fold;
         var $display = $('.' + parentId);
@@ -189,9 +247,9 @@ function ViewModel(data){
     };
 }
 
-var wikiTree = function(selector, data) {
+var wikiTree = function(selector, data, totalCtn) {
     var self = this;
-    this.viewModel = new ViewModel(data);
+    this.viewModel = new ViewModel(data, totalCtn);
     $osf.applyBindings(self.viewModel, selector);
 };
 
