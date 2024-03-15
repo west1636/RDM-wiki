@@ -10,8 +10,6 @@ var _ = require('js/rdmGettext')._;
 
 require('../css/fangorn.css');
 
-var previousState;
-
 function resolveToggle(item) {
     var toggleMinus = m('i.fa.fa-minus', ' ');
     var togglePlus = m('i.fa.fa-plus', ' ');
@@ -108,9 +106,6 @@ function WikiMenu(data, wikiID, canEdit) {
     };
     var grid = new Treebeard(tbOptions);
     var arrays = fixData(data[0].children);
-    console.log('---arrays---')
-    console.log(arrays[0])
-    console.log('---arrays---')
     var currentArray = arrays[0];
     var totalCtn = arrays[1]
     var WikiTree = new wikiTree('#sortWiki', currentArray, totalCtn);
@@ -119,7 +114,7 @@ function WikiMenu(data, wikiID, canEdit) {
 function fixData(data) {
     var koArray = ko.observableArray();
     var koChildArray = ko.observableArray();
-    var totalCtn = 0; // 初期値を0に設定
+    var totalCtn = 0;
     for (var i = 0; i < data.length; i++) {
         var name = data[i].page ? data[i].page.name : data[i].name;
         var id = data[i].page ? data[i].page.id : data[i].id;
@@ -198,28 +193,14 @@ function ViewModel(data, totalCtn){
     var self = this;
     self.data = data;
     self.afterMove = function(obj) {
-        console.log('---afterMove original num---')
-        console.log(totalCtn);
-        console.log('---afterMove original num---')
-        console.log(previousState)
         var $SaveBtn = $('#treeSave');
         if (!checkTotalCtn(self.data(), totalCtn)) {
-            if (previousState) {
-                console.log('sort error')
-                var koPreviousStateData = fixData(previousState);
-                var koPreviousState = koPreviousStateData[0];
-                console.log('---privious  rawdata---')
-                console.log(koPreviousState)
-                console.log('---privious  rawdata---')
-                //self.data(koPreviousState);
-                console.log(self.data)
-            }
             $SaveBtn.prop('disabled', true);
+            $SaveBtn.attr('id', 'treeSaveDisabled');
             alert('sort error! Please reload.');
             return;
         }
         $SaveBtn.prop('disabled', false);
-        previousState = ko.toJS(self.data());
         var parentId = obj.item.id();
         var fold = obj.item.fold();
         var $display = $('.' + parentId);
