@@ -103,6 +103,9 @@ var resolve = {
     alias: {
         //use knockout-sortable v1.2.2 when wiki sort
         'knockout-sortable': staticPath('vendor/knockout-sortable/knockout-sortable-1.2.2.js'),
+        //use milkdown editor stlye
+        '@milkdown/theme-nord': staticPath('vendor/theme-nord/lib/index.es.js'),
+        '@milkdown/theme-nord-css': staticPath('vendor/theme-nord/lib/style.css'),
         'bootstrap-editable': staticPath('vendor/bootstrap-editable-custom/js/bootstrap-editable.js'),
         'jquery-blockui': staticPath('vendor/jquery-blockui/jquery.blockui.js'),
         'Caret.js': staticPath('vendor/bower_components/Caret.js/dist/jquery.caret.min.js'),
