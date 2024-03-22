@@ -10,6 +10,8 @@ var _ = require('js/rdmGettext')._;
 
 require('../css/fangorn.css');
 
+var isSortCancelled = false;
+
 function resolveToggle(item) {
     var toggleMinus = m('i.fa.fa-minus', ' ');
     var togglePlus = m('i.fa.fa-plus', ' ');
@@ -119,15 +121,15 @@ function fixData(data) {
         var name = data[i].page ? data[i].page.name : data[i].name;
         var id = data[i].page ? data[i].page.id : data[i].id;
         var sort_order = data[i].page ? data[i].page.sort_order : data[i].sort_order;
-        if (name === 'Home') {
+        if (id === 'None') {
             continue;
         }
         totalCtn++;
-        if (data[i].children.length > 0) {
+        if (data[i].children !== undefined && data[i].children.length > 0) {
             var koChildArrayData = fixData(data[i].children);
             koChildArray = fixData(data[i].children)[0];            
-            var childCount = koChildArrayData[1]; // 子アイテムの数を取得
-            totalCtn += childCount; // 子アイテムの数を合計に加える
+            var childCount = koChildArrayData[1];
+            totalCtn += childCount;
             koArray.push(new wikiItem({name: name, id: id, sortOrder:sort_order, children: koChildArray}));
         } else {
             koArray.push(new wikiItem({name: name, id: id, sortOrder: sort_order, children: ko.observableArray()}));
@@ -145,6 +147,10 @@ function wikiItem(item) {
     self.fold = ko.observable(false);
 
     self.expandOrCollapse = function() {
+        if (isSortCancelled) {
+            isSortCancelled = false;
+            return
+        }
         var parentId = self.id();
         var $display = $('.' + parentId)
         var $angle =　$('#' + parentId).find('.angle');
@@ -192,6 +198,14 @@ function assignSortOrderNumber(jsonData) {
 function ViewModel(data, totalCtn){
     var self = this;
     self.data = data;
+    self.beforeMove = function(obj) {
+        var pageName = obj.item.name();
+        if (pageName === 'Home') {
+            obj.cancelDrop = true;
+            isSortCancelled = true;
+            return;
+        }
+    }
     self.afterMove = function(obj) {
         var $SaveBtn = $('#treeSave');
         if (!checkTotalCtn(self.data(), totalCtn)) {
