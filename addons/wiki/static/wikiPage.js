@@ -2,9 +2,6 @@
 var ko = require('knockout');
 var $ = require('jquery');
 var $osf = require('js/osfHelpers');
-var mathrender = require('js/mathrender');
-var md = require('js/markdown').full;
-var mdQuick = require('js/markdown').quick;
 var mdOld = require('js/markdown').old;
 var diffTool = require('js/diffTool');
 var _ = require('js/rdmGettext')._;
@@ -13,10 +10,7 @@ var THROTTLE = 500;
 
 var yProseMirror = require('y-prosemirror');
 
-var pMarkdown = require('prosemirror-markdown');
-var mCtx = require('@milkdown/ctx');
 var mCore = require('@milkdown/core');
-var mTransformer = require('@milkdown/transformer');
 var mCommonmark = require('@milkdown/preset-commonmark');
 var mNord = require('@milkdown/theme-nord');
 var mHistory = require('@milkdown/plugin-history');
@@ -24,7 +18,6 @@ var mEmoji = require('@milkdown/plugin-emoji');
 var mUpload = require('@milkdown/plugin-upload');
 var mMath = require('@milkdown/plugin-math');
 var mClipboard = require('@milkdown/plugin-clipboard');
-var mSlash = require('@milkdown/plugin-slash');
 var mGfm = require('@milkdown/preset-gfm');
 require('@milkdown/theme-nord-css');
 require('@milkdown/prose/view/style/prosemirror.css');
@@ -61,27 +54,7 @@ var mEdit;
 var altDafaultFlg = false;
 var headNum = 1;
 
-function slashPluginView(view) {
-  const content = document.createElement('div');
-  content.innerHTML = 'testaaaaa';
-  const provider = new mSlash.SlashProvider({
-    content,
-  });
-
-  return {
-    update: (updatedView, prevState) => {
-      provider.update(updatedView, prevState);
-    },
-    destroy: () => {
-      provider.destroy();
-      content.remove();
-    }
-  }
-}
-
 async function createMView(editor, markdown) {
-    console.log('----createMView 1------');
-    console.log(markdown)
     if (editor && editor.destroy) {
         editor.destroy();
     }
@@ -92,10 +65,6 @@ async function createMView(editor, markdown) {
       .config(ctx => {
         ctx.set(mCore.rootCtx, '#mView')
         ctx.set(mCore.defaultValueCtx, markdown);
-        ctx.update(mCore.editorViewOptionsCtx, (prev) => ({
-            ...prev,
-            attributes: { spellcheck: 'false' },
-        }))
         ctx.update(mCore.editorViewOptionsCtx, (prev) => ({
             ...prev,
             editable,
@@ -112,15 +81,13 @@ async function createMView(editor, markdown) {
       .use(mCursor.cursor)
       .use(mListener.listener)
       .use(mPrism.prism)
-        .use(mIndent.indent)
+      .use(mIndent.indent)
       .use(mCollab.collab)
       .create()
 }
 
 
 async function createMEditor(editor, vm, template) {
-    console.log('----createMEditor 1------');
-    console.log(template)
     if (editor && editor.destroy) {
         editor.destroy();
     }
@@ -151,7 +118,6 @@ async function createMEditor(editor, vm, template) {
         });
         return ret
     };
-    const slash = mSlash.slashFactory('my-slash');
     const wsProvider = new yWebsocket.WebsocketProvider(wsUrl, docId, doc);
     mEdit = await mCore.Editor
       .make()
@@ -162,12 +128,7 @@ async function createMEditor(editor, vm, template) {
             uploader,
             enableHtmlFileUploader,
         }))
-        ctx.update(mCore.editorViewOptionsCtx, (prev) => ({
-            ...prev,
-            attributes: { spellcheck: 'false' },
-        }))
         ctx.get(mListener.listenerCtx).markdownUpdated((ctx, markdown, prevMarkdown) => {
-            console.log('---listener start---')
             const view = ctx.get(mCore.editorViewCtx);
             const state = view.state
             const undoElement = document.getElementById("undoWiki");
@@ -178,23 +139,17 @@ async function createMEditor(editor, vm, template) {
                     document.getElementById("arrowDropDown").style.display = "";
                 });
             }
-            console.log(prevMarkdown);
-            console.log(markdown);
             vm.viewVM.displaySource(markdown);
             // set undo able
             if(state["y-undo$"] !== undefined && (state["y-undo$"].undoManager.undoStack).length !== 0){
                 undoElement.disabled = false;
                 document.getElementById("msoUndo").style.opacity = 1;
             }
-            console.log('---listener end---')
         })
         ctx.update(mCore.editorViewOptionsCtx, (prev) => ({
             ...prev,
             editable,
         }))
-        ctx.set(slash.key, {
-            view: slashPluginView
-        })
       })
       .config(mNord.nord)
       .use(mCommonmark.commonmark)
@@ -206,20 +161,14 @@ async function createMEditor(editor, vm, template) {
       .use(mBlock.block)
       .use(mCursor.cursor)
       .use(mListener.listener)
-      .use(slash)
       .use(mPrism.prism)
-        .use(mIndent.indent)
+      .use(mIndent.indent)
       .use(mCollab.collab)
       .create()
 
     mEdit.action((ctx) => {
         const collabService = ctx.get(mCollab.collabServiceCtx);
         wsProvider.on('sync', isSynced => {
-          console.log(isSynced)
-        })
-
-        doc.on('update', (update, origin, doc) => {
-            console.log('---doc update---')
         })
 
         wsProvider.on('status', event => {
@@ -228,7 +177,6 @@ async function createMEditor(editor, vm, template) {
           if (vm.status() !== 'connecting') {
               vm.updateStatus();
               if (vm.status() === 'connected') {
-                  console.log('---connected---') 
                   altDafaultFlg = true;
               }
           }
@@ -251,7 +199,6 @@ async function createMEditor(editor, vm, template) {
               const dummy = yjs.encodeStateAsUpdate(dummyDoc)
               yjs.applyUpdate(doc, dummy)
               vm.viewVM.displaySource(template);
-              console.log('---end alternative apply---') 
           }
         })
         const fullname = window.contextVars.currentUser.fullname;
@@ -261,12 +208,8 @@ async function createMEditor(editor, vm, template) {
             if (isSynced) {
                 collabService
                 .applyTemplate(template, (remoteNode, templateNode) => {
-                    console.log('-----applyTemplate start----')
-                    console.log(remoteNode)
-                    console.log(templateNode)
                     // if no remote node content, apply current to displaySource
                     if (remoteNode.textContent.length === 0) {
-                        console.log('-----remote node 0----')
                         vm.viewVM.displaySource(template);
                         return true
                     }
@@ -276,12 +219,10 @@ async function createMEditor(editor, vm, template) {
                         const toMarkdown = serializer(remoteNode);
                         vm.viewVM.displaySource(toMarkdown);
                     }
-                console.log('-----applyTemplate end----')
                 })
                 .connect();
             }
         });
-        console.log('--createMEditor end----')
     })
 
 }
@@ -302,8 +243,6 @@ function ViewWidget(visible, version, viewText, rendered, contentURL, allowMathj
     }, THROTTLE);
 
     self.renderMarkdown = function(rawContent){
-       console.log('---renderMakrdown---');
-       console.log(rawContent);
        createMView(mView, rawContent);
     };
 
@@ -312,12 +251,8 @@ function ViewWidget(visible, version, viewText, rendered, contentURL, allowMathj
         var requestURL;
         if (typeof self.version() !== 'undefined') {
             if (self.version() === 'preview') {
-//                self.rendered(self.renderMarkdown(self.viewText()));
-                console.log('---preview---')
-                console.log(mEdit);
                 var toMarkdown = '';
                 if (mEdit !== undefined) {
-                    console.log('---preview tomarkdown---')
                     mEdit.action((ctx) => {
                         const view = ctx.get(mCore.editorViewCtx);
                         const serializer = ctx.get(mCore.serializerCtx)
@@ -380,8 +315,6 @@ function ViewWidget(visible, version, viewText, rendered, contentURL, allowMathj
     // currentText comes from ViewWidget.displayText
 function CompareWidget(visible, compareVersion, currentText, rendered, contentURL) {
     var self = this;
-    console.log('--CompareWidget--')
-    console.log(compareVersion)
     self.compareVersion = compareVersion;
     self.currentText = currentText;
     self.rendered = rendered;
@@ -396,7 +329,6 @@ function CompareWidget(visible, compareVersion, currentText, rendered, contentUR
         } else {
             requestURL= self.contentURL + self.compareVersion();
         }
-        console.log(requestURL)
         var request = $.ajax({
             url: requestURL
         });
@@ -600,9 +532,6 @@ function ViewModel(options){
                 rawContent = resp.wiki_content
             }
             mEdit = createMEditor(mEdit, self, rawContent);
-            console.log('---after createMEditor---')
-            console.log(mEdit)
-            console.log('---after createMEditor---')
         });
     }
     var bodyElement = $('body');
@@ -624,13 +553,11 @@ function ViewModel(options){
 
     self.undoWiki = function() {
         mEdit.action((ctx) => {
-            console.log('---undo---')
             var view = ctx.get(mCore.editorViewCtx);
             var state = view.state
             var preUndoOps = state["y-undo$"]
             view.focus()
             yProseMirror.undo(state)
-            console.log(state["y-undo$"])
             if((state["y-undo$"].undoManager.undoStack).length === 0){
                 document.getElementById("undoWiki").disabled = true;
                 document.getElementById("msoUndo").style.opacity = 0.3;
@@ -641,12 +568,10 @@ function ViewModel(options){
     }
     self.redoWiki = function() {
         mEdit.action((ctx) => {
-            console.log('---redo---')
             const view = ctx.get(mCore.editorViewCtx);
             const state = view.state
             view.focus()
             yProseMirror.redo(state)
-            console.log(state["y-undo$"])
             if((state["y-undo$"].undoManager.redoStack).length === 0){
                 document.getElementById("redoWiki").disabled = true;
                 document.getElementById("msoRedo").style.opacity = 0.3;
@@ -741,8 +666,6 @@ function ViewModel(options){
 
     self.table = function() {
         var cssArrow = document.getElementById("arrowDropDown").style.display;
-        console.log('--table---');
-        console.log(cssArrow);
         if(cssArrow === ''){
             document.getElementById("tableMenu").style.display = "";
             var tableMenu = document.querySelector('#tableMenu');
@@ -811,11 +734,6 @@ function ViewModel(options){
     addImage.onclick = self.image.bind(self);
 
     document.addEventListener('mousedown', (event) => {
-        console.log(event);
-        console.log(event.target);
-        console.log(event.target.closest('.tableWrapper'));
-        console.log(event.target.closest('.table-dropdown-item'));
-        console.log(event.target.closest('#tableBtn'));
         if (!(event.target.closest('.tableWrapper')) && !(event.target.closest('#tableBtn'))) {
             document.getElementById("arrowDropDown").style.display = "none";
         }
@@ -825,7 +743,6 @@ function ViewModel(options){
     });
 
     document.addEventListener('click', (event) => {
-        console.log('---view focus---')
         if (event.target.closest('#mEditor')) {
             mEdit.action((ctx) => {
                 const view = ctx.get(mCore.editorViewCtx);
@@ -837,16 +754,12 @@ function ViewModel(options){
     self.editMode = function() {
       if(self.canEdit) {
         readonly = false;
-        console.log('--editmode--')
-        console.log(mEdit)
-        console.log('--editmode--')
         self.viewVersion('preview');
         document.getElementById("mMenuBar").style.display = "";
         document.getElementById("editWysiwyg").style.display = "none";
         document.getElementById("mEditorFooter").style.display = "";
 
         var tableWrappers = document.querySelectorAll('.tableWrapper');
-        console.log(tableWrappers);
         for (let i = 0; i < tableWrappers.length; i++) {
             tableWrappers[i].addEventListener('click', (event) => {
             document.getElementById("arrowDropDown").style.display = "";
@@ -858,15 +771,10 @@ function ViewModel(options){
             const serializer = ctx.get(mCore.serializerCtx)
             const toMarkdown = serializer(view.state.doc)
             self.viewVM.displaySource(toMarkdown);
-            console.log(toMarkdown)
         })
       } else {
        // output modal 'can not edit because of your permmission'
       }
-    }
-
-    self.closeDialog = function() {
-        console.log('aaa')
     }
 
     self.editModeOff = function() {
@@ -880,7 +788,6 @@ function ViewModel(options){
     self.submitMText = function() {
         var toMarkdown = '';
         mEdit.action((ctx) => {
-            console.log('---submitMText---');
             const view = ctx.get(mCore.editorViewCtx);
             const serializer = ctx.get(mCore.serializerCtx)
             toMarkdown = serializer(view.state.doc)
@@ -897,7 +804,6 @@ function ViewModel(options){
         }).fail(function(xhr) {
             var resp = JSON.parse(xhr.responseText);
             var message = resp.message;
-            console.log(message)
         });
     }
 }
