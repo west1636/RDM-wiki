@@ -198,6 +198,7 @@ function assignSortOrderNumber(jsonData) {
 function ViewModel(data, totalCtn){
     var self = this;
     self.data = data;
+    self.url = window.contextVars.wiki.urls.base;
     self.beforeMove = function(obj) {
         var pageName = obj.item.name();
         if (pageName === 'Home') {
