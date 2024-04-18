@@ -443,11 +443,11 @@ function ViewModel(options){
     self.statusDisplay = ko.computed(function() {
         switch(self.throttledStatus()) {
             case 'connected':
-                return 'Live editing mode';
+                return _('Live editing mode');
             case 'connecting':
-                return 'Attempting to connect';
+                return _('Attempting to connect');
             default:
-                return 'Unavailable: Live editing';
+                return _('Unavailable: Live editing');
         }
     });
 
