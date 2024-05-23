@@ -32,6 +32,7 @@ var mTooltip = require('@milkdown/plugin-tooltip');
 var mUtils = require('@milkdown/utils');
 var mCollab = require('@milkdown/plugin-collab');
 var yWebsocket = require('y-websocket');
+var yIndexeddb = require('y-indexeddb');
 var yjs = require('yjs');
 var currentOutput = '';
 var mEdit;
@@ -44,6 +45,7 @@ var currentMd = '';
 var element = document.getElementById("mEditor");
 const doc = new yjs.Doc();
 const docId = window.contextVars.wiki.metadata.docId;
+const wikiId = window.contextVars.wiki.wikiID;
 const wsPrefix = (window.location.protocol === 'https:') ? 'wss://' : 'ws://';
 const wsUrl = wsPrefix + window.contextVars.wiki.urls.y_websocket;
 var wikiCtx = window.contextVars;
@@ -118,6 +120,7 @@ async function createMEditor(editor, vm, template) {
         });
         return ret
     };
+    const indexeddbProvider = new yIndexeddb.IndexeddbPersistence(wikiId, doc);
     const wsProvider = new yWebsocket.WebsocketProvider(wsUrl, docId, doc);
     mEdit = await mCore.Editor
       .make()
@@ -205,23 +208,11 @@ async function createMEditor(editor, vm, template) {
         wsProvider.awareness.setLocalStateField('user', { name: fullname, color: '#ffb61e'})
         collabService.bindDoc(doc).setAwareness(wsProvider.awareness)
         wsProvider.once('synced', async (isSynced) => {
+			console.log('---wsprovider---');
             if (isSynced) {
-                collabService
-                .applyTemplate(template, (remoteNode, templateNode) => {
-                    // if no remote node content, apply current to displaySource
-                    if (remoteNode.textContent.length === 0) {
-                        vm.viewVM.displaySource(template);
-                        return true
-                    }
-                    if (vm.viewVM.version() === 'preview') {
-                        const view = ctx.get(mCore.editorViewCtx);
-                        const serializer = ctx.get(mCore.serializerCtx)
-                        const toMarkdown = serializer(remoteNode);
-                        vm.viewVM.displaySource(toMarkdown);
-                    }
-                })
-                .connect();
+                collabService.connect();
             }
+			console.log('---wsprovider---');
         });
     })
 
