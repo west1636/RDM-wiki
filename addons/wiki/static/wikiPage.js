@@ -207,12 +207,24 @@ async function createMEditor(editor, vm, template) {
         const fullname = window.contextVars.currentUser.fullname;
         wsProvider.awareness.setLocalStateField('user', { name: fullname, color: '#ffb61e'})
         collabService.bindDoc(doc).setAwareness(wsProvider.awareness)
+        indexeddbProvider.on('synced', async () => {
+            console.log('Content from the database is loaded');
+            const lastKey = indexeddbProvider._dbref;
+            console.log(lastKey)
+            const data = await indexeddbProvider.get(lastKey);
+            if (data) {
+                console.log('---getdata---');
+                //apply toMarkdown
+            } else {
+                console.log('---getnodata---');
+                collabService.applyTemplate(template);
+                vm.viewVM.displaySource(template);
+            }
+        });
         wsProvider.once('synced', async (isSynced) => {
-			console.log('---wsprovider---');
             if (isSynced) {
                 collabService.connect();
             }
-			console.log('---wsprovider---');
         });
     })
 
