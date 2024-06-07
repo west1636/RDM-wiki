@@ -128,24 +128,6 @@ async function createMEditor(editor, vm, template) {
             uploader,
             enableHtmlFileUploader,
         }))
-        ctx.get(mListener.listenerCtx).markdownUpdated((ctx, markdown, prevMarkdown) => {
-            const view = ctx.get(mCore.editorViewCtx);
-            const state = view.state
-            const undoElement = document.getElementById("undoWiki");
-            // add event table menu
-            var tableWrappers = document.querySelectorAll('.tableWrapper');
-            for (let i = 0; i < tableWrappers.length; i++) {
-                tableWrappers[i].addEventListener('click', (event) => {
-                    document.getElementById("arrowDropDown").style.display = "";
-                });
-            }
-            vm.viewVM.displaySource(markdown);
-            // set undo able
-            if(state["y-undo$"] !== undefined && (state["y-undo$"].undoManager.undoStack).length !== 0){
-                undoElement.disabled = false;
-                document.getElementById("msoUndo").style.opacity = 1;
-            }
-        })
         ctx.update(mCore.editorViewOptionsCtx, (prev) => ({
             ...prev,
             editable,
