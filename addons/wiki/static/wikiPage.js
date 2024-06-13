@@ -131,9 +131,6 @@ async function createMEditor(editor, vm, template) {
             uploader,
             enableHtmlFileUploader,
         }))
-        ctx.get(mListener.listenerCtx).markdownUpdated((ctx, markdown, prevMarkdown) => {
-            vm.viewVM.displaySource(markdown);
-        })
         ctx.update(mCore.editorViewOptionsCtx, (prev) => ({
             ...prev,
             editable,
