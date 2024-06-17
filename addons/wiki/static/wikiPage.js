@@ -54,7 +54,6 @@ var imageFolder = 'Wiki images';
 var promises = [];
 var mEdit;
 var altDafaultFlg = false;
-var headNum = 1;
 
 async function createMView(editor, markdown) {
     if (editor && editor.destroy) {
@@ -633,14 +632,49 @@ function ViewModel(options){
             return mUtils.callCommand(mCommonmark.wrapInBulletListCommand.key)(ctx)
         })
     }
-    self.head = function() {
+    self.head1 = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
             view.focus()
-            mUtils.callCommand(mCommonmark.wrapInHeadingCommand.key, headNum)(ctx)
-            headNum === 6 ? headNum = 1 : headNum =  headNum + 1;
+            mUtils.callCommand(mCommonmark.wrapInHeadingCommand.key, 1)(ctx)
         })
     }
+    self.head2 = function() {
+        mEdit.action((ctx) => {
+            const view = ctx.get(mCore.editorViewCtx);
+            view.focus()
+            mUtils.callCommand(mCommonmark.wrapInHeadingCommand.key, 2)(ctx)
+        })
+    }
+    self.head3 = function() {
+        mEdit.action((ctx) => {
+            const view = ctx.get(mCore.editorViewCtx);
+            view.focus()
+            mUtils.callCommand(mCommonmark.wrapInHeadingCommand.key, 3)(ctx)
+        })
+    }
+    self.head4 = function() {
+        mEdit.action((ctx) => {
+            const view = ctx.get(mCore.editorViewCtx);
+            view.focus()
+            mUtils.callCommand(mCommonmark.wrapInHeadingCommand.key, 4)(ctx)
+        })
+    }
+    self.head5 = function() {
+        mEdit.action((ctx) => {
+            const view = ctx.get(mCore.editorViewCtx);
+            view.focus()
+            mUtils.callCommand(mCommonmark.wrapInHeadingCommand.key, 5)(ctx)
+        })
+    }
+    self.head6 = function() {
+        mEdit.action((ctx) => {
+            const view = ctx.get(mCore.editorViewCtx);
+            view.focus()
+            mUtils.callCommand(mCommonmark.wrapInHeadingCommand.key, 6)(ctx)
+        })
+    }
+
     self.horizontal = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
