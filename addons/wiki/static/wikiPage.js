@@ -573,11 +573,11 @@ function ViewModel(options){
         })
     }
     self.link = function() {
-        var linkHref = document.getElementById("linkHref");
+        var linkHref = document.getElementById("linkSrc");
         var linkTitle = document.getElementById("linkTitle");
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
-            mUtils.callCommand(mCommonmark.toggleLinkCommand.key, {href: linkHref.value, title: linkTitle.value})(ctx)
+            mUtils.callCommand(mCommonmark.toggleLinkCommand.key, {href: linkSrc.value, title: linkTitle.value})(ctx)
             $('.modal').modal('hide');
             linkHref.value = '';
             linkTitle.value = '';
