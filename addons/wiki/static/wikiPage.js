@@ -632,42 +632,42 @@ function ViewModel(options){
             return mUtils.callCommand(mCommonmark.wrapInBulletListCommand.key)(ctx)
         })
     }
-    self.head1 = function() {
+    self.head_1 = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
             view.focus()
             mUtils.callCommand(mCommonmark.wrapInHeadingCommand.key, 1)(ctx)
         })
     }
-    self.head2 = function() {
+    self.head_2 = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
             view.focus()
             mUtils.callCommand(mCommonmark.wrapInHeadingCommand.key, 2)(ctx)
         })
     }
-    self.head3 = function() {
+    self.head_3 = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
             view.focus()
             mUtils.callCommand(mCommonmark.wrapInHeadingCommand.key, 3)(ctx)
         })
     }
-    self.head4 = function() {
+    self.head_4 = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
             view.focus()
             mUtils.callCommand(mCommonmark.wrapInHeadingCommand.key, 4)(ctx)
         })
     }
-    self.head5 = function() {
+    self.head_5 = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
             view.focus()
             mUtils.callCommand(mCommonmark.wrapInHeadingCommand.key, 5)(ctx)
         })
     }
-    self.head6 = function() {
+    self.head_6 = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
             view.focus()
