@@ -131,7 +131,11 @@ async function createMEditor(editor, vm, template) {
             enableHtmlFileUploader,
         }))
         const debouncedMarkdownUpdated = $osf.debounce(async (ctx, markdown, prevMarkdown) => {      
-            vm.viewVM.displaySource(markdown)
+            const compareWidgetElement = document.getElementById("compareWidget"); 
+            if (compareWidgetElement && compareWidgetElement.style.display !== 'none') {
+                console.log("compareWidget is visible");
+                vm.viewVM.displaySource(markdown);
+            } 
             const view = ctx.get(mCore.editorViewCtx);
             const state = view.state
             const undoElement = document.getElementById("undoWiki");
