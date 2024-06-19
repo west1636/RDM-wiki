@@ -130,6 +130,20 @@ async function createMEditor(editor, vm, template) {
             uploader,
             enableHtmlFileUploader,
         }))
+        const debouncedMarkdownUpdated = $osf.debounce(async (ctx, markdown, prevMarkdown) => {      
+            vm.viewVM.displaySource(markdown)
+            const view = ctx.get(mCore.editorViewCtx);
+            const state = view.state
+            const undoElement = document.getElementById("undoWiki");
+            // set undo able
+            if(state["y-undo$"] !== undefined && (state["y-undo$"].undoManager.undoStack).length !== 0){
+                undoElement.disabled = false;
+                document.getElementById("msoUndo").style.opacity = 1;
+            }
+        }, 300);
+        ctx.get(mListener.listenerCtx).markdownUpdated((ctx, markdown, prevMarkdown) => {
+            debouncedMarkdownUpdated(ctx, markdown, prevMarkdown);
+        });
         ctx.update(mCore.editorViewOptionsCtx, (prev) => ({
             ...prev,
             editable,
@@ -768,6 +782,9 @@ function ViewModel(options){
                 view.focus()
             })
         }
+        if (event.target.closest('.tableWrapper')) {
+            document.getElementById("arrowDropDown").style.display = "";
+        }
     });
 
     self.editMode = function() {
@@ -777,19 +794,9 @@ function ViewModel(options){
         document.getElementById("mMenuBar").style.display = "";
         document.getElementById("editWysiwyg").style.display = "none";
         document.getElementById("mEditorFooter").style.display = "";
-
-        var tableWrappers = document.querySelectorAll('.tableWrapper');
-        for (let i = 0; i < tableWrappers.length; i++) {
-            tableWrappers[i].addEventListener('click', (event) => {
-            document.getElementById("arrowDropDown").style.display = "";
-            });
-        }
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
             view.focus();
-            const serializer = ctx.get(mCore.serializerCtx)
-            const toMarkdown = serializer(view.state.doc)
-            self.viewVM.displaySource(toMarkdown);
         })
       } else {
        // output modal 'can not edit because of your permmission'
