@@ -54,6 +54,7 @@ var imageFolder = 'Wiki images';
 var promises = [];
 var mEdit;
 var altDafaultFlg = false;
+var headNum = 1;
 
 async function createMView(editor, markdown) {
     if (editor && editor.destroy) {
@@ -650,46 +651,12 @@ function ViewModel(options){
             return mUtils.callCommand(mCommonmark.wrapInBulletListCommand.key)(ctx)
         })
     }
-    self.head_1 = function() {
+    self.head = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
             view.focus()
-            mUtils.callCommand(mCommonmark.wrapInHeadingCommand.key, 1)(ctx)
-        })
-    }
-    self.head_2 = function() {
-        mEdit.action((ctx) => {
-            const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
-            mUtils.callCommand(mCommonmark.wrapInHeadingCommand.key, 2)(ctx)
-        })
-    }
-    self.head_3 = function() {
-        mEdit.action((ctx) => {
-            const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
-            mUtils.callCommand(mCommonmark.wrapInHeadingCommand.key, 3)(ctx)
-        })
-    }
-    self.head_4 = function() {
-        mEdit.action((ctx) => {
-            const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
-            mUtils.callCommand(mCommonmark.wrapInHeadingCommand.key, 4)(ctx)
-        })
-    }
-    self.head_5 = function() {
-        mEdit.action((ctx) => {
-            const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
-            mUtils.callCommand(mCommonmark.wrapInHeadingCommand.key, 5)(ctx)
-        })
-    }
-    self.head_6 = function() {
-        mEdit.action((ctx) => {
-            const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
-            mUtils.callCommand(mCommonmark.wrapInHeadingCommand.key, 6)(ctx)
+            mUtils.callCommand(mCommonmark.wrapInHeadingCommand.key, headNum)(ctx)
+            headNum === 6 ? headNum = 1 : headNum =  headNum + 1;
         })
     }
 
