@@ -668,6 +668,14 @@ function ViewModel(options){
         })
     }
 
+    self.strikethrough = function() {
+        mEdit.action((ctx) => {
+            const view = ctx.get(mCore.editorViewCtx);
+            view.focus()
+            return mUtils.callCommand(mGfm.toggleStrikethroughCommand.key)(ctx)
+        })
+    }
+
     self.table = function() {
         var cssArrow = document.getElementById("arrowDropDown").style.display;
         if(cssArrow === ''){
