@@ -8,7 +8,8 @@ require('osf-panel');
 var _ = require('js/rdmGettext')._;
 var sprintf = require('agh.sprintf').sprintf;
 
-var WikiPage = require('wikiPage');
+//var WikiPage = require('wikiPage');
+import WikiPage from 'wikiPage';
 
 var WikiMenu = require('../wikiMenu');
 var Comment = require('js/comment'); //jshint ignore:line

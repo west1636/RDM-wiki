@@ -1391,5 +1391,5 @@ var WikiPage = function(selector, options) {
     $osf.applyBindings(self.viewModel, selector);
 };
 
-module.exports = WikiPage;
+export default WikiPage;
 
