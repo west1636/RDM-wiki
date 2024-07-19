@@ -12,14 +12,14 @@ var yProseMirror = require('y-prosemirror');
 
 var mCore = require('@milkdown/core');
 var mCommonmark = require('@milkdown/preset-commonmark');
-var mNord = require('@milkdown/theme-nord');
+import * as mNord from '@milkdown/theme-nord';
 var mHistory = require('@milkdown/plugin-history');
 var mEmoji = require('@milkdown/plugin-emoji');
 var mUpload = require('@milkdown/plugin-upload');
 var mMath = require('@milkdown/plugin-math');
 var mClipboard = require('@milkdown/plugin-clipboard');
 var mGfm = require('@milkdown/preset-gfm');
-require('@milkdown/theme-nord-css');
+require('@milkdown/theme-nord/style.css');
 require('@milkdown/prose/view/style/prosemirror.css');
 require('@milkdown/prose/tables/style/tables.css');
 require('katex/dist/katex.min.css')
@@ -56,6 +56,334 @@ var mEdit;
 var altDafaultFlg = false;
 var headNum = 1;
 
+var $inputRule = require('@milkdown/utils').$inputRule;
+var $command = require('@milkdown/utils').$command;
+var $markSchema = require('@milkdown/utils').$markSchema;
+var $remark = require('@milkdown/utils').$remark;
+//var markRule = require('@milkdown/prose').markRule;
+//var toggleMark = require('@milkdown/prose/commands').toggleMark;
+//var InputRule = require('@milkdown/prose/inputrules').InputRule;
+import { markRule } from '@milkdown/prose';
+import { toggleMark } from '@milkdown/prose/commands';
+import { InputRule } from '@milkdown/prose/inputrules';
+
+
+const underlineSchema = $markSchema('underline', function () {
+    return {
+        parseDOM: [
+            { tag: 'u' },
+            { style: 'text-decoration', getAttrs: value => value === 'underline' ? {} : false },
+        ],
+        toDOM: mark => ['u', 0],
+        parseMarkdown: {
+            match: node => node.type === 'underline',
+            runner: (state, node, markType) => {
+                state.openMark(markType)
+                state.next(node.children)
+                state.closeMark(markType)
+            }
+        },
+        toMarkdown: {
+            match: mark => mark.type.name === 'underline',
+            runner: (state, mark, node) => {
+                state.addNode('text', undefined, `<u>${node.text}</u>`);
+            }
+        }
+    };
+});
+
+const underlineInputRule = $inputRule(function (ctx) {
+    return markRule(/<u>(.*?)<\/u>/, underlineSchema.type(ctx));
+});
+
+function isParent(node) {
+    return !!(node && node.children && Array.isArray(node.children));
+  }
+  
+function isLiteral(node) {
+    return !!(node && typeof node.value === 'string');
+  }
+
+function flatMap(ast, fn) {
+    return transform(ast, 0, null)[0];
+
+    function transform(node, index, parent) {
+      if (isParent(node)) {
+        const out = []
+        for (var i = 0, n = node.children.length; i < n; i++) {
+          const nthChild = node.children[i]
+          if (nthChild) {
+            const xs = transform(nthChild, i, node)
+            if (xs) {
+              for (var j = 0, m = xs.length; j < m; j++) {
+                const item = xs[j]
+                if (item)
+                  out.push(item)
+              }
+            }
+          }
+        }
+        node.children = out
+      }
+  
+      return fn(node, index, parent)
+    }
+  }
+
+const underlinePlugin = function underlinePlugin() {
+    function transformer(tree) {
+      return flatMap(tree, function(node) {
+
+        if (!isLiteral(node)) return [node];
+  
+        const value = node.value;
+        const output = [];
+        const regex = /<u>(.*?)<\/u>/g;
+        let match;
+        let str = value;
+        let lastIndex = 0;
+  
+        while ((match = regex.exec(str))) {
+          const { index } = match;
+          const underlineText = match[1];
+  
+          if (index > lastIndex) {
+            output.push({
+              ...node,
+              value: str.slice(lastIndex, index),
+              position: {
+                start: {
+                  line: node.position.start.line,
+                  column: node.position.start.column + lastIndex,
+                  offset: node.position.start.offset + lastIndex
+                },
+                end: {
+                  line: node.position.start.line,
+                  column: node.position.start.column + index,
+                  offset: node.position.start.offset + index
+                }
+              }
+            });
+          }
+  
+          if (underlineText) {
+            const underlineNode = {
+              type: 'underline',
+              position: {
+                start: {
+                  line: node.position.start.line,
+                  column: node.position.start.column + index,
+                  offset: node.position.start.offset + index
+                },
+                end: {
+                  line: node.position.start.line,
+                  column: node.position.start.column + index + match[0].length,
+                  offset: node.position.start.offset + index + match[0].length
+                }
+              },
+              children: [
+                {
+                  type: 'text',
+                  value: underlineText,
+                  position: {
+                    start: {
+                      line: node.position.start.line,
+                      column: node.position.start.column + index + 3,
+                      offset: node.position.start.offset + index + 3
+                    },
+                    end: {
+                      line: node.position.start.line,
+                      column: node.position.start.column + index + 3 + underlineText.length,
+                      offset: node.position.start.offset + index + 3 + underlineText.length
+                    }
+                  }
+                }
+              ]
+            };
+            output.push(underlineNode);
+          }
+  
+          lastIndex = index + match[0].length;
+          regex.lastIndex = lastIndex;
+        }
+
+        if (lastIndex < str.length) {
+          output.push({
+            ...node,
+            value: str.slice(lastIndex),
+            position: {
+              start: {
+                line: node.position.start.line,
+                column: node.position.start.column + lastIndex,
+                offset: node.position.start.offset + lastIndex
+              },
+              end: {
+                line: node.position.end.line,
+                column: node.position.end.column,
+                offset: node.position.end.offset
+              }
+            }
+          });
+        }
+  
+        return output;
+      });
+    }
+    return transformer;
+}
+
+const colortextPlugin = function colortextPlugin() {
+    function transformer(tree) {
+        return flatMap(tree, function(node) {
+            if (!isLiteral(node)) return [node];
+
+            const value = node.value;
+            const output = [];
+            const regex = /<span style="(.*?)">(.*?)<\/span>/g;
+            let match;
+            let str = value;
+            let lastIndex = 0;
+
+            while ((match = regex.exec(str))) {
+                const { index } = match;
+                const style = match[1];
+                const colortext = match[2];
+                const color = style.match(/color:\s*([^;]+);?/i)?.[1] || '';
+
+                if (index > lastIndex) {
+                    output.push({
+                        ...node,
+                        value: str.slice(lastIndex, index),
+                        position: {
+                            start: {
+                                line: node.position.start.line,
+                                column: node.position.start.column + lastIndex,
+                                offset: node.position.start.offset + lastIndex
+                            },
+                            end: {
+                                line: node.position.start.line,
+                                column: node.position.start.column + index,
+                                offset: node.position.start.offset + index
+                            }
+                        }
+                    });
+                }
+
+                if (colortext) {
+                    const colortextNode = {
+                        type: 'colortext',
+                        color: color,
+                        position: {
+                            start: {
+                                line: node.position.start.line,
+                                column: node.position.start.column + index,
+                                offset: node.position.start.offset + index
+                            },
+                            end: {
+                                line: node.position.start.line,
+                                column: node.position.start.column + index + match[0].length,
+                                offset: node.position.start.offset + index + match[0].length
+                            }
+                        },
+                        children: [
+                            {
+                                type: 'text',
+                                value: colortext,
+                                position: {
+                                    start: {
+                                        line: node.position.start.line,
+                                        column: node.position.start.column + index + match[0].indexOf(colortext),
+                                        offset: node.position.start.offset + index + match[0].indexOf(colortext)
+                                    },
+                                    end: {
+                                        line: node.position.start.line,
+                                        column: node.position.start.column + index + match[0].indexOf(colortext) + colortext.length,
+                                        offset: node.position.start.offset + index + match[0].indexOf(colortext) + colortext.length
+                                    }
+                                }
+                            }
+                        ]
+                    };
+                    output.push(colortextNode);
+                }
+
+                lastIndex = index + match[0].length;
+                regex.lastIndex = lastIndex;
+            }
+
+            if (lastIndex < str.length) {
+                output.push({
+                    ...node,
+                    value: str.slice(lastIndex),
+                    position: {
+                        start: {
+                            line: node.position.start.line,
+                            column: node.position.start.column + lastIndex,
+                            offset: node.position.start.offset + lastIndex
+                        },
+                        end: {
+                            line: node.position.end.line,
+                            column: node.position.end.column,
+                            offset: node.position.end.offset
+                        }
+                    }
+                });
+            }
+
+            return output;
+        });
+    }
+    return transformer;
+}
+
+
+var remarkUnderline = $remark('remarkUnderline', function () { return underlinePlugin; });
+var remarkColortext = $remark('remarkColortext', function () { return colortextPlugin; });
+
+const toggleUnderlineCommand = $command('ToggleUnderline', ctx => () => {
+    return toggleMark(underlineSchema.type(ctx));
+});
+
+const colortextMark = $markSchema('colortext', function () {
+    return {
+        attrs: {
+            color: { default: null },
+        },
+        toDOM: mark => ['span', { style: `color: ${mark.attrs.color}` }],
+        parseMarkdown: {
+            match: node => node.type === 'colortext',
+            runner: (state, node, markType) => {
+                state.openMark(markType, { color: node.color })
+                state.next(node.children)
+                state.closeMark(markType)
+            }
+        },
+        toMarkdown: {
+            match: mark => mark.type.name === 'colortext',
+            runner: (state, mark, node) => {
+                state.addNode('text', undefined, `<span style="color: ${mark.attrs.color}">`);
+                state.addNode('text', undefined, node.text);
+                state.addNode('text', undefined, '</span>');
+            }
+        }
+    };
+});
+
+const colortextInputRule = $inputRule(function (ctx) {
+    return markRule(/<span style="color:\s*([^;]+);?">([^<]+)<\/span>/, colortextMark.type(ctx), {
+        getAttr: match => ({ color: match[1] })
+    });
+});
+
+var toggleColortextCommand = $command('ToggleColortext', ctx => {
+    return function(color) {
+        if (!color)
+            return
+        var attrs = { color: color };
+        return toggleMark(colortextMark.type(ctx), attrs)
+    };
+});
+
 async function createMView(editor, markdown) {
     if (editor && editor.destroy) {
         editor.destroy();
@@ -74,6 +402,8 @@ async function createMView(editor, markdown) {
       })
       .config(mNord.nord)
       .use(mCommonmark.commonmark)
+      .use([remarkUnderline, underlineSchema, underlineInputRule, toggleUnderlineCommand])
+      .use([remarkColortext, colortextMark, colortextInputRule, toggleColortextCommand])
       .use(mEmoji.emoji)
       .use(mUpload.upload)
       .use(mMath.math)
@@ -156,6 +486,8 @@ async function createMEditor(editor, vm, template) {
       })
       .config(mNord.nord)
       .use(mCommonmark.commonmark)
+      .use([remarkUnderline, underlineSchema, underlineInputRule, toggleUnderlineCommand])
+      .use([remarkColortext, colortextMark, colortextInputRule, toggleColortextCommand])
       .use(mEmoji.emoji)
       .use(mUpload.upload)
       .use(mMath.math)
@@ -255,14 +587,16 @@ function ViewWidget(visible, version, viewText, rendered, contentURL, allowMathj
         if (typeof self.version() !== 'undefined') {
             if (self.version() === 'preview') {
                 var toMarkdown = '';
+                var fixedMarkdown = '';
                 if (mEdit !== undefined) {
                     mEdit.action((ctx) => {
                         const view = ctx.get(mCore.editorViewCtx);
                         const serializer = ctx.get(mCore.serializerCtx)
                         toMarkdown = serializer(view.state.doc)
+                        fixedMarkdown = fixCustomSyntax(toMarkdown);
                     })
                 }
-                self.displaySource(toMarkdown);
+                self.displaySource(fixedMarkdown);
                 if (document.getElementById("editWysiwyg").style.display === "none"){
                     document.getElementById("mMenuBar").style.display = "";
                     document.getElementById("mEditorFooter").style.display = "";
@@ -548,6 +882,20 @@ function ViewModel(options){
                 self.viewVersion('preview');
             }
         }
+        if (panel === 'compare') {
+            if(display && self.compareVis()){
+                self.viewVersion('preview');
+                var toMarkdown = '';
+                var fixedMarkdown = '';
+                mEdit.action((ctx) => {
+                    const view = ctx.get(mCore.editorViewCtx);
+                    const serializer = ctx.get(mCore.serializerCtx)
+                    toMarkdown = serializer(view.state.doc)
+                    fixedMarkdown = fixCustomSyntax(toMarkdown);
+                })
+                self.viewVM.displaySource(fixedMarkdown);
+            }
+        }
     });
 
     bodyElement.on('toggleMenu', function(event, menuVisible) {
@@ -665,6 +1013,36 @@ function ViewModel(options){
             const view = ctx.get(mCore.editorViewCtx);
             view.focus()
             return mUtils.callCommand(mCommonmark.insertHrCommand.key)(ctx)
+        })
+    }
+
+    self.underline = function() {
+        mEdit.action((ctx) => {
+            const view = ctx.get(mCore.editorViewCtx);
+            view.focus()
+            return mUtils.callCommand(toggleUnderlineCommand.key)(ctx)
+        })
+    }
+
+    self.color = ko.observable('#000000');
+    self.colortext = function() {
+        mEdit.action((ctx) => {
+            const view = ctx.get(mCore.editorViewCtx);
+            view.focus()
+            var state = view.state;
+            var ranges = state.selection.ranges;
+            //var colortextMarkExists = ranges.some(r => state.doc.rangeHasMark(r.$from.pos - 1, r.$to.pos, colortextMark.type(ctx)));
+            var colortextMarkExists = ranges.some(r => {
+                if (r.$from.pos === 1 && r.$to.pos === 1) {
+                    return state.doc.rangeHasMark(r.$from.pos, r.$to.pos + 1, colortextMark.type(ctx));
+                }
+                return state.doc.rangeHasMark(r.$from.pos - 1, r.$to.pos, colortextMark.type(ctx));
+            });
+            
+            if (colortextMarkExists) {
+                mUtils.callCommand(toggleColortextCommand.key, self.color())(ctx)
+            }
+            return mUtils.callCommand(toggleColortextCommand.key, self.color())(ctx)
         })
     }
 
@@ -791,17 +1169,18 @@ function ViewModel(options){
 
     // Command once to get edits, including collaborative editing or for only set preview comparison value.
     self.submitMText = function() {
-        var toMarkdown = '';
+        var fixedMarkdown = '';
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
             const serializer = ctx.get(mCore.serializerCtx)
-            toMarkdown = serializer(view.state.doc)
+            var toMarkdown = serializer(view.state.doc)
+            fixedMarkdown = fixCustomSyntax(toMarkdown);
         })
         var pageUrl = window.contextVars.wiki.urls.page;
         $.ajax({
             url:pageUrl,
             type:'POST',
-            data: JSON.stringify({markdown: toMarkdown}),
+            data: JSON.stringify({markdown: fixedMarkdown}),
             contentType: 'application/json; charset=utf-8',
         }).done(function (resp) {
             const reloadUrl = (location.href).replace(location.search, '')
@@ -812,6 +1191,16 @@ function ViewModel(options){
         });
     }
 }
+
+function fixCustomSyntax(toMarkdown) {
+    //fix underline && colortext
+    var replacedMarkdown = toMarkdown.replace(/\\<u>(.*?)\\<\/u>\\<span style="color: ([^"]+)">(.*?)\\<\/span>(\1)/g, '\\<u>\\<span style="color: $2">$1\\</span>\\</u>');
+    //fix underline
+    replacedMarkdown = replacedMarkdown.replace(/\\<u>(.*?)\\<\/u>(\1)/g, '\\<u>$1\\</u>');
+    //fix colortext
+    replacedMarkdown = replacedMarkdown.replace(/\\<span style="color: ([^"]+)">(.*?)\\<\/span>\2/g, '\\<span style="color: $1">$2\\</span>');
+    return replacedMarkdown;
+};
 
 /**
  * If the 'Wiki images' folder does not exist for the current node, createFolder generates the request to create it
