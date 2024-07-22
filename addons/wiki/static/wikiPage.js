@@ -56,10 +56,7 @@ var mEdit;
 var altDafaultFlg = false;
 var headNum = 1;
 
-var $inputRule = require('@milkdown/utils').$inputRule;
-var $command = require('@milkdown/utils').$command;
-var $markSchema = require('@milkdown/utils').$markSchema;
-var $remark = require('@milkdown/utils').$remark;
+import { $inputRule, $command, $markSchema, $remark } from '@milkdown/utils';
 import { markRule } from '@milkdown/prose';
 import { toggleMark } from '@milkdown/prose/commands';
 import { InputRule } from '@milkdown/prose/inputrules';
