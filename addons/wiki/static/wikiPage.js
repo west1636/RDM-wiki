@@ -56,10 +56,11 @@ var mEdit;
 var altDafaultFlg = false;
 var headNum = 1;
 
-import { $inputRule, $command, $markSchema, $remark } from '@milkdown/utils';
+import { $inputRule, $command, $markSchema, $remark, $ctx, $nodeSchema } from '@milkdown/utils';
 import { markRule } from '@milkdown/prose';
 import { toggleMark } from '@milkdown/prose/commands';
 import { InputRule } from '@milkdown/prose/inputrules';
+import { NodeSelection } from '@milkdown/prose/state';
 
 
 const underlineSchema = $markSchema('underline', function () {
@@ -355,9 +356,7 @@ const colortextMark = $markSchema('colortext', function () {
         toMarkdown: {
             match: mark => mark.type.name === 'colortext',
             runner: (state, mark, node) => {
-                state.addNode('text', undefined, `<span style="color: ${mark.attrs.color}">`);
-                state.addNode('text', undefined, node.text);
-                state.addNode('text', undefined, '</span>');
+                state.addNode('text', undefined, `<span style="color: ${mark.attrs.color}">${node.text}</span>`);
             }
         }
     };
@@ -378,6 +377,20 @@ var toggleColortextCommand = $command('ToggleColortext', ctx => {
     };
 });
 
+var toggleMokujimacroCommand = $command('ToggleMokujiMacro', ctx => {
+    return function(color) {
+        console.log('---togglemokujimacrocommand---');
+    };
+});
+
+function customHeadingIdGenerator(node) {
+    return node.textContent
+        .toLowerCase()
+        .replace(/[^\p{L}\p{N}]/gu, '')
+        .replace(/\s+/g, '')
+        .trim();
+}
+
 async function createMView(editor, markdown) {
     if (editor && editor.destroy) {
         editor.destroy();
@@ -389,6 +402,7 @@ async function createMView(editor, markdown) {
       .config(ctx => {
         ctx.set(mCore.rootCtx, '#mView')
         ctx.set(mCore.defaultValueCtx, markdown);
+        ctx.update(mCommonmark.headingIdGenerator.key, () => customHeadingIdGenerator)
         ctx.update(mCore.editorViewOptionsCtx, (prev) => ({
             ...prev,
             editable,
@@ -450,6 +464,7 @@ async function createMEditor(editor, vm, template) {
       .make()
       .config(ctx => {
         ctx.set(mCore.rootCtx, '#mEditor')
+        ctx.update(mCommonmark.headingIdGenerator.key, () => customHeadingIdGenerator)
         ctx.update(mUpload.uploadConfig.key, (prev) => ({
             ...prev,
             uploader,
@@ -581,16 +596,14 @@ function ViewWidget(visible, version, viewText, rendered, contentURL, allowMathj
         if (typeof self.version() !== 'undefined') {
             if (self.version() === 'preview') {
                 var toMarkdown = '';
-                var fixedMarkdown = '';
                 if (mEdit !== undefined) {
                     mEdit.action((ctx) => {
                         const view = ctx.get(mCore.editorViewCtx);
                         const serializer = ctx.get(mCore.serializerCtx)
                         toMarkdown = serializer(view.state.doc)
-                        fixedMarkdown = fixCustomSyntax(toMarkdown);
                     })
                 }
-                self.displaySource(fixedMarkdown);
+                self.displaySource(toMarkdown);
                 if (document.getElementById("editWysiwyg").style.display === "none"){
                     document.getElementById("mMenuBar").style.display = "";
                     document.getElementById("mEditorFooter").style.display = "";
@@ -600,6 +613,10 @@ function ViewWidget(visible, version, viewText, rendered, contentURL, allowMathj
             } else {
                 document.getElementById("mMenuBar").style.display = "none";
                 document.getElementById("mEditor").style.display = "none";
+                const milkdownDivs = document.getElementById("mEditor").querySelectorAll('div.milkdown');
+                if (milkdownDivs.length > 0) {
+                    milkdownDivs[0].remove();
+                }
                 document.getElementById("mEditorFooter").style.display = "none";
                 document.getElementById("wikiViewRender").style.display = "";
                 if (self.version() === 'current') {
@@ -621,18 +638,8 @@ function ViewWidget(visible, version, viewText, rendered, contentURL, allowMathj
                         } else {
                             var rawContent = _('*No wiki content.*');
                         }
-                        if (resp.rendered_before_update) {
-                            // Use old md renderer. Don't mathjaxify
-                            self.allowMathjaxification(false);
-                            self.rendered(mdOld.render(rawContent));
-                            $markdownElement.css('display', 'inherit');
-
-                        } else {
-                            // Render raw markdown
-                            self.allowMathjaxification(true);
-                            self.rendered(self.renderMarkdown(rawContent));
-                            $markdownElement.css('display', 'inherit');
-                        }
+                        // Render raw markdown
+                        self.rendered(self.renderMarkdown(rawContent));
                         self.displaySource(rawContent);
                     }
                 });
@@ -749,6 +756,14 @@ function ViewModel(options){
         }
         return versionString;
     });
+    self.collaborativeStatus = ko.computed(function() {
+        console.log(self.viewVersion())
+        if (self.viewVersion() === 'preview') {
+            document.getElementById("collaborativeStatus").style.display = "";
+        } else {
+            document.getElementById("collaborativeStatus").style.display = "none";
+        }
+    });
     // Save initial query params (except for the "mode" query params, which are handled
     // by self.currentURL), so that we can preserve them when we mutate window.history.state
     var initialParams = $osf.urlParams();
@@ -862,7 +877,9 @@ function ViewModel(options){
             if (resp.wiki_content){
                 rawContent = resp.wiki_content
             }
-            mEdit = createMEditor(mEdit, self, rawContent);
+            if ((self.viewVersion() === 'preview' )) {
+                mEdit = createMEditor(mEdit, self, rawContent);
+            }
         });
     }
     var bodyElement = $('body');
@@ -880,14 +897,12 @@ function ViewModel(options){
             if(display && self.compareVis()){
                 self.viewVersion('preview');
                 var toMarkdown = '';
-                var fixedMarkdown = '';
                 mEdit.action((ctx) => {
                     const view = ctx.get(mCore.editorViewCtx);
                     const serializer = ctx.get(mCore.serializerCtx)
                     toMarkdown = serializer(view.state.doc)
-                    fixedMarkdown = fixCustomSyntax(toMarkdown);
                 })
-                self.viewVM.displaySource(fixedMarkdown);
+                self.viewVM.displaySource(toMarkdown);
             }
         }
     });
@@ -1018,6 +1033,34 @@ function ViewModel(options){
         })
     }
 
+    self.mokujimacro = function() {
+        mEdit.action((ctx) => {
+            const view = ctx.get(mCore.editorViewCtx);
+            const state = view.state;
+            const schema = ctx.get(mCore.schemaCtx);
+            const nodes = view.state.doc.content.content;
+            const mokuji = nodes
+            .filter(node => node.type.name === 'heading' && node.content && node.content.content[0])
+            .map(node => {
+                const headingText = node.content.content[0].text;
+                const headingId = node.attrs.id;
+                return { text: headingText, id: headingId };
+            });
+            var pos = state.selection.from;
+            var tr = state.tr;
+            const listItems = mokuji.map((heading) => {
+                const attrs = { title: heading.text, href: '#' + heading.id };
+                const textNode = schema.text(heading.text, [schema.marks.link.create(attrs)]);
+                const paragraphNode = schema.nodes.paragraph.createAndFill({}, textNode);
+                return schema.nodes.list_item.createAndFill({}, paragraphNode);
+            });
+            const bulletListNode = schema.nodes.bullet_list.createAndFill({}, listItems);
+            tr.insert(pos, bulletListNode);
+            view.dispatch(tr);
+            view.focus()
+        })
+    }
+
     self.color = ko.observable('#000000');
     self.colortext = function() {
         mEdit.action((ctx) => {
@@ -1034,7 +1077,9 @@ function ViewModel(options){
             });
             
             if (colortextMarkExists) {
-                mUtils.callCommand(toggleColortextCommand.key, self.color())(ctx)
+                if (self.color() !== '#000000') {
+                    mUtils.callCommand(toggleColortextCommand.key, self.color())(ctx)
+                }
             }
             return mUtils.callCommand(toggleColortextCommand.key, self.color())(ctx)
         })
@@ -1145,10 +1190,10 @@ function ViewModel(options){
         document.getElementById("mMenuBar").style.display = "";
         document.getElementById("editWysiwyg").style.display = "none";
         document.getElementById("mEditorFooter").style.display = "";
-        mEdit.action((ctx) => {
-            const view = ctx.get(mCore.editorViewCtx);
-            view.focus();
-        })
+        const milkdownDivs = document.getElementById("mEditor").querySelectorAll('div.milkdown');
+        if (milkdownDivs.length === 0) {
+            recreateEditor();
+        }
       } else {
        // output modal 'can not edit because of your permmission'
       }
@@ -1163,18 +1208,17 @@ function ViewModel(options){
 
     // Command once to get edits, including collaborative editing or for only set preview comparison value.
     self.submitMText = function() {
-        var fixedMarkdown = '';
+        var toMarkdown = '';
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
             const serializer = ctx.get(mCore.serializerCtx)
-            var toMarkdown = serializer(view.state.doc)
-            fixedMarkdown = fixCustomSyntax(toMarkdown);
+            toMarkdown = serializer(view.state.doc)
         })
         var pageUrl = window.contextVars.wiki.urls.page;
         $.ajax({
             url:pageUrl,
             type:'POST',
-            data: JSON.stringify({markdown: fixedMarkdown}),
+            data: JSON.stringify({markdown: toMarkdown}),
             contentType: 'application/json; charset=utf-8',
         }).done(function (resp) {
             const reloadUrl = (location.href).replace(location.search, '')
@@ -1185,16 +1229,6 @@ function ViewModel(options){
         });
     }
 }
-
-function fixCustomSyntax(toMarkdown) {
-    //fix underline && colortext
-    var replacedMarkdown = toMarkdown.replace(/\\<u>(.*?)\\<\/u>\\<span style="color: ([^"]+)">(.*?)\\<\/span>(\1)/g, '\\<u>\\<span style="color: $2">$1\\</span>\\</u>');
-    //fix underline
-    replacedMarkdown = replacedMarkdown.replace(/\\<u>(.*?)\\<\/u>(\1)/g, '\\<u>$1\\</u>');
-    //fix colortext
-    replacedMarkdown = replacedMarkdown.replace(/\\<span style="color: ([^"]+)">(.*?)\\<\/span>\2/g, '\\<span style="color: $1">$2\\</span>');
-    return replacedMarkdown;
-};
 
 /**
  * If the 'Wiki images' folder does not exist for the current node, createFolder generates the request to create it
@@ -1383,6 +1417,41 @@ var WikiPage = function(selector, options) {
 
     this.viewModel = new ViewModel(self.options);
     $osf.applyBindings(self.viewModel, selector);
+};
+
+$('#viewVersionSelect').change(function() {
+    if ($(this).val() === 'preview') {
+        document.getElementById("wikiViewRender").style.display = "none";
+        recreateEditor();
+    }
+});
+
+function recreateEditor() {
+    var options = $.extend({}, defaultOptions, wikiPageOptions);
+    var newViewModel = new ViewModel(options);
+    createMEditor(mEdit, newViewModel, '');
+}
+
+var ctx = window.contextVars.wiki;
+
+var wikiEditable = (ctx.panelsUsed.indexOf('edit') !== -1);
+var viewable = (ctx.panelsUsed.indexOf('view') !== -1);
+var comparable = (ctx.panelsUsed.indexOf('compare') !== -1);
+var menuVisible = (ctx.panelsUsed.indexOf('menu') !== -1);
+
+var viewVersion = ctx.versionSettings.view || (editable ? 'preview' : 'current');
+var compareVersion = ctx.versionSettings.compare || 'previous';
+
+var wikiPageOptions = {
+    editVisible: wikiEditable,
+    viewVisible: viewable,
+    compareVisible: comparable,
+    menuVisible: menuVisible,
+    canEdit: ctx.canEdit,
+    viewVersion: viewVersion,
+    compareVersion: compareVersion,
+    urls: ctx.urls,
+    metadata: ctx.metadata
 };
 
 export default WikiPage;
