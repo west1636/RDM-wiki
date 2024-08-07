@@ -139,6 +139,7 @@ const underlinePlugin = function underlinePlugin() {
         let lastIndex = 0;
   
         while ((match = regex.exec(str))) {
+          console.log('Match found:', match);
           const { index } = match;
           const underlineText = match[1];
   
