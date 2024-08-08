@@ -45,10 +45,10 @@ var currentMd = '';
 var element = document.getElementById("mEditor");
 const doc = new yjs.Doc();
 const docId = window.contextVars.wiki.metadata.docId;
-const wikiId = window.contextVars.wiki.wikiID;
+const wikiCtx = window.contextVars;
+const wikiId = (wikiCtx.wiki.wikiName === 'home') ? wikiCtx.node.id : window.contextVars.wiki.wikiID;
 const wsPrefix = (window.location.protocol === 'https:') ? 'wss://' : 'ws://';
 const wsUrl = wsPrefix + window.contextVars.wiki.urls.y_websocket;
-var wikiCtx = window.contextVars;
 var validImgExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp'];
 var imageFolder = 'Wiki images';
 var promises = [];
@@ -459,7 +459,7 @@ async function createMEditor(editor, vm, template) {
         });
         return ret
     };
-    const indexeddbProvider = new yIndexeddb.IndexeddbPersistence(wikiId, doc);
+    const indexeddbProvider = wikiId ? new yIndexeddb.IndexeddbPersistence(wikiId, doc) : (console.error('Invalid wikiId: it must not be null, undefined, or empty'), null);
     const wsProvider = new yWebsocket.WebsocketProvider(wsUrl, docId, doc);
     mEdit = await mCore.Editor
       .make()
@@ -549,23 +549,24 @@ async function createMEditor(editor, vm, template) {
         const fullname = window.contextVars.currentUser.fullname;
         wsProvider.awareness.setLocalStateField('user', { name: fullname, color: '#ffb61e'})
         collabService.bindDoc(doc).setAwareness(wsProvider.awareness)
-        indexeddbProvider.on('synced', async () => {
-            console.log('Content from the database is loaded');
-            const lastKey = indexeddbProvider._dbref;
-            console.log(lastKey)
-            const data = await indexeddbProvider.get(lastKey);
-            if (data) {
-                console.log('---getdata---');
-                //apply toMarkdown
-            } else {
-                console.log('---getnodata---');
-                collabService.applyTemplate(template);
-                vm.viewVM.displaySource(template);
-            }
-        });
+
         wsProvider.once('synced', async (isSynced) => {
             if (isSynced) {
-                collabService.connect();
+                collabService
+                .applyTemplate(template, (remoteNode, templateNode) => {
+                    // if no remote node content, apply current to displaySource
+                    if (remoteNode.textContent.length === 0) {
+                        vm.viewVM.displaySource(template);
+                        return true
+                    } else {
+                        const view = ctx.get(mCore.editorViewCtx);
+                        const serializer = ctx.get(mCore.serializerCtx)
+                        const toMarkdown = serializer(remoteNode);
+                        vm.viewVM.displaySource(toMarkdown);
+                        return false
+                    }
+                })
+                .connect();
             }
         });
     })
