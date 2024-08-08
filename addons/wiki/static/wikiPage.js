@@ -1194,7 +1194,16 @@ function ViewModel(options){
         document.getElementById("mEditorFooter").style.display = "";
         const milkdownDivs = document.getElementById("mEditor").querySelectorAll('div.milkdown');
         if (milkdownDivs.length === 0) {
-            recreateEditor();
+            var request = $.ajax({
+                url: self.contentURL
+            });
+            var rawContent = '';
+            request.done(function (resp) {
+                if (resp.wiki_content){
+                    rawContent = resp.wiki_content
+                }
+                mEdit = createMEditor(mEdit, self, rawContent);
+            });
         }
       } else {
        // output modal 'can not edit because of your permmission'
@@ -1419,41 +1428,21 @@ var WikiPage = function(selector, options) {
 
     this.viewModel = new ViewModel(self.options);
     $osf.applyBindings(self.viewModel, selector);
-};
-
-$('#viewVersionSelect').change(function() {
-    if ($(this).val() === 'preview') {
-        document.getElementById("wikiViewRender").style.display = "none";
-        recreateEditor();
-    }
-});
-
-function recreateEditor() {
-    var options = $.extend({}, defaultOptions, wikiPageOptions);
-    var newViewModel = new ViewModel(options);
-    createMEditor(mEdit, newViewModel, '');
-}
-
-var ctx = window.contextVars.wiki;
-
-var wikiEditable = (ctx.panelsUsed.indexOf('edit') !== -1);
-var viewable = (ctx.panelsUsed.indexOf('view') !== -1);
-var comparable = (ctx.panelsUsed.indexOf('compare') !== -1);
-var menuVisible = (ctx.panelsUsed.indexOf('menu') !== -1);
-
-var viewVersion = ctx.versionSettings.view || (editable ? 'preview' : 'current');
-var compareVersion = ctx.versionSettings.compare || 'previous';
-
-var wikiPageOptions = {
-    editVisible: wikiEditable,
-    viewVisible: viewable,
-    compareVisible: comparable,
-    menuVisible: menuVisible,
-    canEdit: ctx.canEdit,
-    viewVersion: viewVersion,
-    compareVersion: compareVersion,
-    urls: ctx.urls,
-    metadata: ctx.metadata
+    // Set up the event listener for the dropdown
+    $('#viewVersionSelect').change(function() {
+        if ($(this).val() === 'preview') {
+            var request = $.ajax({
+                url: self.viewModel.contentURL
+            });
+            var rawContent = '';
+            request.done(function (resp) {
+                if (resp.wiki_content){
+                    rawContent = resp.wiki_content
+                }
+                mEdit = createMEditor(mEdit, self.viewModel, rawContent);
+            });
+        }
+    });
 };
 
 export default WikiPage;
