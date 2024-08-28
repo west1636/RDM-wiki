@@ -117,7 +117,7 @@ var resolve = {
         'pagedown-ace-converter': addonsPath('wiki/static/pagedown-ace/Markdown.Converter.js'),
         'pagedown-ace-sanitizer': addonsPath('wiki/static/pagedown-ace/Markdown.Sanitizer.js'),
         'pagedown-ace-editor': addonsPath('wiki/static/pagedown-ace/Markdown.Editor.js'),
-        'WikiPageMilkdown': addonsPath('wiki/static/WikiPageMilkdown.js'),
+        'WikiPageMilkdown': addonsPath('wiki/static/wikiPageMilkdown.js'),
         'typo': staticPath('vendor/ace-plugins/typo.js'),
         'highlight-css': nodePath('highlight.js/styles/default.css'),
         'pikaday-css': nodePath('pikaday/css/pikaday.css'),
