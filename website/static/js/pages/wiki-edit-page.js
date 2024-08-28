@@ -9,9 +9,10 @@ var _ = require('js/rdmGettext')._;
 var sprintf = require('agh.sprintf').sprintf;
 
 //var WikiPage = require('wikiPage');
-import WikiPage from 'wikiPage';
+import WikiPageMilkdown from 'WikiPageMilkdown';
 
 var WikiMenu = require('../wikiMenu');
+var WikiTree = require('../wikiTree')
 var Comment = require('js/comment'); //jshint ignore:line
 var $osf = require('js/osfHelpers');
 
@@ -37,7 +38,7 @@ var wikiPageOptions = {
     metadata: ctx.metadata
 };
 
-var wikiPage = new WikiPage('#wikiPageContext', wikiPageOptions);
+var wikiPage = new WikiPageMilkdown('#wikiPageContext', wikiPageOptions);
 
 
 // Edit wiki page name
@@ -96,6 +97,7 @@ $(document).ready(function () {
     })
     .done(function (data) {
         new WikiMenu(data, ctx.wikiID, ctx.canEdit);
+        new WikiTree('#sortWiki', data)
     })
     .fail(function(xhr, status, error) {
         grid.addClass('hidden');
