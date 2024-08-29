@@ -99,6 +99,15 @@
   dependencies:
     tslib "^2.5.0"
 
+"@milkdown/plugin-automd@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/plugin-automd/-/plugin-automd-7.3.6.tgz#9173e4d96046af29a4e1d9241aeef6e614c9176f"
+  integrity sha512-fSA8dQDy6Jkf1JdBigf5pBejMuMFMFwtBI7QrHAmPgbIFWyzdXNRC16GYWLO5K+2tyDmxNr7BsSw/HcNyY1GiQ==
+  dependencies:
+    "@milkdown/exception" "7.3.6"
+    "@milkdown/utils" "7.3.6"
+    tslib "^2.5.0"
+
 "@milkdown/plugin-block@7.3.6":
   version "7.3.6"
   resolved "https://registry.yarnpkg.com/@milkdown/plugin-block/-/plugin-block-7.3.6.tgz#0226c1f9d4759f64d93014c9b7685a722957a9c2"
