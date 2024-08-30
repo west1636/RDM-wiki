@@ -17,7 +17,6 @@ var yProseMirror = require('y-prosemirror');
 import * as mCore from '@milkdown/core';
 import { Ctx } from '@milkdown/ctx';
 import * as mCommonmark from '@milkdown/preset-commonmark';
-import * as mAutomd from '@milkdown/plugin-automd'
 import * as mNord from '@milkdown/theme-nord';
 import * as mHistory from '@milkdown/plugin-history';
 import * as mEmoji from '@milkdown/plugin-emoji';
@@ -596,7 +595,6 @@ async function createMView(editor, markdown) {
       })
       .config(mNord.nord)
       .use(mCommonmark.commonmark)
-      .use(mAutomd.automd)
       .use([...remarkUnderline, underlineSchema, underlineInputRule, toggleUnderlineCommand])
       .use([remarkColortext, colortextMark, colortextInputRule, toggleColortextCommand])
       //.use(mGrdmmark.commonmark)
@@ -786,7 +784,6 @@ function imageTooltipPluginView(view) {
       })
       .config(mNord.nord)
       .use(mCommonmark.commonmark)
-      .use(mAutomd.automd)
       .use(extendedUpdateImageCommand)
       .use([...remarkUnderline, underlineSchema, underlineInputRule, toggleUnderlineCommand])
       .use([remarkColortext, colortextMark, colortextInputRule, toggleColortextCommand])
