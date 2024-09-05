@@ -166,7 +166,7 @@ const underlinePlugin = function underlinePlugin() {
   
         const value = node.value;
         const output = [];
-        const regex = /<u>(.*?)<\/u>/;
+        const regex = /<u>(.*?)<\/u>/g;
         let match;
         let str = value;
         let lastIndex = 0;
@@ -267,7 +267,7 @@ const colortextPlugin = function colortextPlugin() {
 
             const value = node.value;
             const output = [];
-            const regex = /<span style="(.*?)">(.*?)<\/span>/;
+            const regex = /<span style="(.*?)">(.*?)<\/span>/g;
             let match;
             let str = value;
             let lastIndex = 0;
@@ -380,7 +380,7 @@ const colortextMark = $markSchema('colortext', function () {
         attrs: {
             color: { default: null },
         },
-        toDOM: mark => ['span', { style: `color: ${mark.attrs.color}` }, 0],
+        toDOM: mark => ['span', { style: `color: ${mark.attrs.color}` }],
         parseMarkdown: {
             match: node => node.type === 'colortext',
             runner: (state, node, markType) => {
@@ -446,7 +446,6 @@ var extendedUpdateImageCommand = $command('ExtendedUpdateImage', ctx => {
             var alt = payload.alt;
             var title = payload.title;
             var width = payload.width;
-            var height = payload.height; // heightの追加
             var link = payload.link;
             var linkMark;
 
@@ -461,9 +460,6 @@ var extendedUpdateImageCommand = $command('ExtendedUpdateImage', ctx => {
             }
             if (width !== undefined) {
                 newAttrs.width = width;
-            }
-            if (height !== undefined) { // heightの更新
-                newAttrs.height = height;
             }
             if (link !== undefined) {
                 newAttrs.link = link;
@@ -499,7 +495,6 @@ const extendedImageSchemaPlugin = mCommonmark.imageSchema.extendSchema((prevSche
             attrs: {
                 ...prevSchema(ctx).attrs,
                 width: { default: '' },
-                height: { default: '' },  // height 属性を追加
                 link: { default: '' },
             },
             parseDOM: [
@@ -511,46 +506,55 @@ const extendedImageSchemaPlugin = mCommonmark.imageSchema.extendSchema((prevSche
                         return {
                             ...prevSchema(ctx).parseDOM[0].getAttrs(dom),
                             width: dom.getAttribute('width') || '',
-                            height: dom.getAttribute('height') || '',  // height 属性を取得
                             link: dom.getAttribute('link') || '',
                         };
                     },
                 },
             ],
+            toDOM: function (node) {
+                //console.log('---toDOM start---');
+                var attrs = Object.assign({}, node.attrs);
+                const [url, width] = attrs.src.split('|');  
+                if (width && !attrs.width) {
+                    attrs.src = url;
+                    attrs.width = width;
+                }           
+                return ['img', attrs];
+            },
             parseMarkdown: {
                 ...prevSchema(ctx).parseMarkdown,
                 runner: (state, node, type) => {
-                    const url = node.url;
+                    const [url, width] = node.url.split('|');
+                    const pUrl = node.url;
                     const alt = node.alt;
                     const title = node.title;
-                    const width = node.width;
-                    const height = node.height;
                     const link = node.link;
+                    //console.log('---praseMarkdown image start---')
                     state.addNode(type, {
-                        src: url,
+                        src: pUrl,
                         alt,
                         title,
                         width,
-                        height,
                         link
                     });
+                    //console.log('---praseMarkdown image end---')
                 },
             },
             toMarkdown: {
                 ...prevSchema(ctx).toMarkdown,
                 runner: (state, node) => {
-                    var width = node.attrs.width;
-                    if (width && width.endsWith('x')) {
-                        width = width.slice(0, -1);
-                    }                    
-                    
+                    //console.log('---tomarkdown image---')
+                    const [src, width] = node.attrs.src.split('|');
+                    var param = node.attrs.width ? `|${node.attrs.width}` : '';
+                    if (!param) {
+                        param = width ? `|${width}` : '';
+                    }
                     state.addNode('image', undefined, undefined, {
                         title: node.attrs.title,
-                        url: node.attrs.src,
+                        url: src + param,
                         alt: node.attrs.alt,
+                        width: node.attrs.width,
                         link: node.attrs.link,
-                        width: width,
-                        height: node.attrs.height,
                     });
                 },
             },
@@ -558,61 +562,18 @@ const extendedImageSchemaPlugin = mCommonmark.imageSchema.extendSchema((prevSche
     };
 });
 
-const linkInputRuleCosutom = $inputRule((ctx) => {
-    const linkPattern = /(?<!\\|!)\[(?!!\[.*?\]\(.*?\))(.+?(?<!\\)(?:\\\\)*)\]\((.+?)(?:\s+['"](.+?)['"])?\)/;
-    return new InputRule(linkPattern, (state, match, start, end) => {
-        if (!match) return null;
-
-        var [okay, text, href] = match;
-        const { tr } = state;
-        const markType = mCommonmark.linkSchema.type(ctx);
-
-        if (!markType) return null;
-
-        if (text === "\ufffc") {
-            const node = state.doc.nodeAt(start + 1);
-            if (node.type.name === "image") {
-                const imageAttrs = {
-                    src: node.attrs.src,
-                    alt: node.attrs.alt,
-                    title: node.attrs.title,
-                    link: href,
-                    width: node.attrs.width,
-                    height: node.attrs.height
-                };
-                const linkMark = markType.create({ href });
-                const imageNode = mCommonmark.imageSchema.type(ctx).create(imageAttrs);
-                const imageWithLink = imageNode.mark([linkMark]);
-                tr.replaceWith(start, end, imageWithLink);
-            }
-        } else {
-            tr.removeMark(start, end);
-            tr.insertText(text, start, end);
-            tr.addMark(start, start + text.length, markType.create({ href }));
-        }
-        return tr;
-    });
-});
 
 const updatedInsertImageInputRule = $inputRule(function (ctx) {
-    const imagePattern = /!\[(?<alt>[^\]]*)\]\((?<src>[^\s)]+)(?:\s+"(?<title>[^"]*)")?(?:\s+=\s*(?<width>\d+(?:%|x)?)(?:x(?<height>\d*(?:%)?))?)?\)/;
-
-    return new InputRule(imagePattern, (state, match, start, end) => {
-        if (!match) return null;
-
-        const { alt, src, title, width, height } = match.groups;
-
-        const attrs = { src, alt, title };
-        
-        if (width) attrs.width = width;
-        if (height) attrs.height = height;
-
-        const { tr } = state;
-        const nodeType = mCommonmark.imageSchema.type(ctx);
-
-        return tr.replaceWith(start, end, nodeType.create(attrs));
-    });
-});
+    /!\[(?<alt>[^\]]*)\]\((?<src>[^\s)]+)(?:\s+"(?<title>[^"]*)")?\)(?:\((?<width>\d+)\))?/,
+    (state, match, start, end) => {
+        const [matched, alt, src, title, width] = match;
+        if (matched) {
+            return state.tr.replaceWith(start, end, imageSchema.type(ctx).create({ src, alt, title, width }))
+        }
+  
+      return null
+    }
+  });
 
 async function createMView(editor, markdown) {
     if (editor && editor.destroy) {
@@ -634,9 +595,8 @@ async function createMView(editor, markdown) {
       })
       .config(mNord.nord)
       .use(mCommonmark.commonmark)
-      .use([remarkUnderline, underlineSchema, underlineInputRule, toggleUnderlineCommand])
+      .use([...remarkUnderline, underlineSchema, underlineInputRule, toggleUnderlineCommand])
       .use([remarkColortext, colortextMark, colortextInputRule, toggleColortextCommand])
-      .use([linkInputRuleCosutom, updatedInsertImageInputRule])
       //.use(mGrdmmark.commonmark)
       .use(mEmoji.emoji)
       .use(mUpload.upload)
@@ -770,6 +730,9 @@ function imageTooltipPluginView(view) {
 
     const wsProvider = new yWebsocket.WebsocketProvider(wsUrl, docId, doc);
 
+    //console.log('---tooltip---')
+    //console.log(mTooltip)
+    //console.log(mCommonmark)
     mEdit = await mCore.Editor
       .make()
       .config(ctx => {
@@ -822,9 +785,8 @@ function imageTooltipPluginView(view) {
       .config(mNord.nord)
       .use(mCommonmark.commonmark)
       .use(extendedUpdateImageCommand)
-      .use([remarkUnderline, underlineSchema, underlineInputRule, toggleUnderlineCommand])
+      .use([...remarkUnderline, underlineSchema, underlineInputRule, toggleUnderlineCommand])
       .use([remarkColortext, colortextMark, colortextInputRule, toggleColortextCommand])
-      .use([linkInputRuleCosutom, updatedInsertImageInputRule])
       //.use(mGrdmmark.commonmark)
       .use(mEmoji.emoji)
       .use(mUpload.upload)
