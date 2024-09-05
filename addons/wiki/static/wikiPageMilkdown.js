@@ -166,7 +166,7 @@ const underlinePlugin = function underlinePlugin() {
   
         const value = node.value;
         const output = [];
-        const regex = /<u>(.*?)<\/u>/;
+        const regex = /<u>(.*?)<\/u>/g;
         let match;
         let str = value;
         let lastIndex = 0;
@@ -267,7 +267,7 @@ const colortextPlugin = function colortextPlugin() {
 
             const value = node.value;
             const output = [];
-            const regex = /<span style="(.*?)">(.*?)<\/span>/;
+            const regex = /<span style="(.*?)">(.*?)<\/span>/g;
             let match;
             let str = value;
             let lastIndex = 0;
