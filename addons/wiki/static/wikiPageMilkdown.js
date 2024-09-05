@@ -529,11 +529,18 @@ const extendedImageSchemaPlugin = mCommonmark.imageSchema.extendSchema((prevSche
             parseMarkdown: {
                 ...prevSchema(ctx).parseMarkdown,
                 runner: (state, node, type) => {
-                    const url = node.url;
+                    console.log('node:', node)
+                    const [url, size] = node.url.split(/\s+(.+)$/);
+                    const sizeMatch = size && size.match(/^=([\d]+)(%?)x?([\d]*)(%?)$/);
+                    var width = '';
+                    var height = '';
+
+                    if (sizeMatch) {
+                        width = sizeMatch[1];
+                        height = sizeMatch[2];
+                    }
                     const alt = node.alt;
                     const title = node.title;
-                    const width = node.width;
-                    const height = node.height;
                     const link = node.link;
                     state.addNode(type, {
                         src: url,
@@ -548,14 +555,21 @@ const extendedImageSchemaPlugin = mCommonmark.imageSchema.extendSchema((prevSche
             toMarkdown: {
                 ...prevSchema(ctx).toMarkdown,
                 runner: (state, node) => {
+                    var url = node.attrs.src;
                     var width = node.attrs.width;
                     if (width && width.endsWith('x')) {
                         width = width.slice(0, -1);
                     }                    
                     
+                
+                    if (node.attrs.width || node.attrs.height) {
+                        const width = node.attrs.width ? `=${node.attrs.width}` : '';
+                        const height = node.attrs.height ? `${node.attrs.height}` : '';
+                        url += ` ${width}${height}`;
+                    }              
                     state.addNode('image', undefined, undefined, {
                         title: node.attrs.title,
-                        url: node.attrs.src,
+                        url,
                         alt: node.attrs.alt,
                         link: node.attrs.link,
                         width: width,
