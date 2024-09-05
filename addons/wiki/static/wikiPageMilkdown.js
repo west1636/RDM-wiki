@@ -377,6 +377,15 @@ const toggleUnderlineCommand = $command('ToggleUnderline', ctx => () => {
 
 const colortextMark = $markSchema('colortext', function () {
     return {
+        parseDOM: [
+            {
+                tag: 'span[style]',
+                getAttrs: (dom) => {
+                    const color = dom.style.color;
+                    return color ? { color } : false;  // スタイルが存在する場合は色を取得
+                },
+            },
+        ],
         attrs: {
             color: { default: null },
         },
