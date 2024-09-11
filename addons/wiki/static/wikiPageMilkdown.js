@@ -108,13 +108,7 @@ const underlineSchema = $markSchema('underline', function () {
         toMarkdown: {
             match: mark => mark.type.name === 'underline',
             runner: (state, mark, node) => {
-                console.log('---toMarkdown underline---')
-                //console.log('state:', state);
-                //console.log('mark:', mark);
-                //console.log('node:', node);
-                state.addNode('text', undefined, `<u>${node.text}</u>`);
-                //state.openNode(mark.type.name).next(node.content).closeNode();
-                //console.log('schema:', state.schema)
+                state.withMark(mark, 'underline')
             }
         }
     };
@@ -260,6 +254,59 @@ const underlinePlugin = function underlinePlugin() {
     return transformer;
 }
 
+const constructsWithoutUnderline = [
+    'autolink',
+    'destinationLiteral',
+    'destinationRaw',
+    'reference',
+    'titleQuote',
+    'titleApostrophe'
+  ]
+  
+
+const underlineToMarkdown = function underlineToMarkdown() {
+    return {
+      unsafe: [
+        {
+          character: '<u>',
+          inConstruct: 'phrasing',
+          notInConstruct: constructsWithoutUnderline
+        },
+        {
+          character: '</u>',
+          inConstruct: 'phrasing',
+          notInConstruct: constructsWithoutUnderline
+        }
+      ],
+      handlers: {underline: handleUnderline}
+    }
+  }
+  
+
+const handleUnderline = function handleUnderline(node, _, state, info) {
+    const tracker = state.createTracker(info)
+    const exit = state.enter('underline')
+    let value = tracker.move('\\<u>')
+    value += state.containerPhrasing(node, {
+      ...tracker.current()
+    })
+    value += tracker.move('\\</u>')
+    exit()
+    return value
+}
+
+var remarkUnderlineFunc = function remarkUnderlineFunc() {
+    var self = this;
+    var data = self.data();
+  
+    var toMarkdownExtensions =
+      data.toMarkdownExtensions || (data.toMarkdownExtensions = []);
+  
+    toMarkdownExtensions.push(underlineToMarkdown());
+  };
+
+var remarkUnderlineToMarkdown = $remark('remarkUnderlineToMarkdown', function () { return remarkUnderlineFunc });
+
 const colortextPlugin = function colortextPlugin() {
     function transformer(tree) {
         return flatMap(tree, function(node) {
@@ -366,8 +413,6 @@ const colortextPlugin = function colortextPlugin() {
 
 
 var remarkUnderline = $remark('remarkUnderline', function () { return underlinePlugin; });
-//var remarkUnderline = $remark('remarkUnderline', function() { return [underlinePlugin, underlineToMarkdown]; });
-//var remarkDirective = $remark('remarkDirective', function () { return directive; });
 
 var remarkColortext = $remark('remarkColortext', function () { return colortextPlugin; });
 
@@ -657,7 +702,7 @@ async function createMView(editor, markdown) {
       })
       .config(mNord.nord)
       .use(mCommonmark.commonmark)
-      .use([remarkUnderline, underlineSchema, underlineInputRule, toggleUnderlineCommand])
+      .use([remarkUnderlineToMarkdown, remarkUnderline, underlineSchema, underlineInputRule, toggleUnderlineCommand])
       .use([remarkColortext, colortextMark, colortextInputRule, toggleColortextCommand])
       .use([linkInputRuleCosutom, updatedInsertImageInputRule])
       //.use(mGrdmmark.commonmark)
@@ -845,7 +890,7 @@ function imageTooltipPluginView(view) {
       .config(mNord.nord)
       .use(mCommonmark.commonmark)
       .use(extendedUpdateImageCommand)
-      .use([remarkUnderline, underlineSchema, underlineInputRule, toggleUnderlineCommand])
+      .use([remarkUnderlineToMarkdown, remarkUnderline, underlineSchema, underlineInputRule, toggleUnderlineCommand])
       .use([remarkColortext, colortextMark, colortextInputRule, toggleColortextCommand])
       .use([linkInputRuleCosutom, updatedInsertImageInputRule])
       //.use(mGrdmmark.commonmark)
