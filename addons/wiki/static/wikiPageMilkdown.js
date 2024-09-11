@@ -411,6 +411,48 @@ const colortextPlugin = function colortextPlugin() {
     return transformer;
 }
 
+const colortextToMarkdown = function colortextToMarkdown() {
+    return {
+      unsafe: [
+        {
+          character: '<span style="color: ',
+          inConstruct: 'phrasing'
+        },
+        {
+          character: '</span>',
+          inConstruct: 'phrasing'
+        }
+      ],
+      handlers: {
+        colortext: handleColortext
+      }
+    }
+  };
+  
+  const handleColortext = function handleColortext(node, _, state, info) {
+    const tracker = state.createTracker(info);
+    const exit = state.enter('colortext');
+    let value = tracker.move('\\<span style="color: ' + node.color + '">');
+    value += state.containerPhrasing(node, {
+      ...tracker.current()
+    });
+    value += '\\</span>';
+    
+    exit();
+    return value;
+  };
+
+  var remarkColortextFunc = function remarkColortextFunc() {
+    var self = this;
+    var data = self.data();
+  
+    var toMarkdownExtensions =
+      data.toMarkdownExtensions || (data.toMarkdownExtensions = []);
+  
+    toMarkdownExtensions.push(colortextToMarkdown());
+  };
+
+var remarkColortextToMarkdown = $remark('remarkColortextToMarkdown', function () { return remarkColortextFunc });
 
 var remarkUnderline = $remark('remarkUnderline', function () { return underlinePlugin; });
 
@@ -438,7 +480,6 @@ const colortextMark = $markSchema('colortext', function () {
         parseMarkdown: {
             match: node => node.type === 'colortext',
             runner: (state, node, markType) => {
-                //console.log('---parseMarkdown color---')
                 state.openMark(markType, { color: node.color })
                 state.next(node.children)
                 state.closeMark(markType)
@@ -447,9 +488,7 @@ const colortextMark = $markSchema('colortext', function () {
         toMarkdown: {
             match: mark => mark.type.name === 'colortext',
             runner: (state, mark, node) => {
-                //console.log('---toMarkdown color---')
-                state.addNode('text', undefined, `<span style="color: ${mark.attrs.color}">${node.text}</span>`);
-                //state.withMark(mark, 'underline')
+                state.withMark(mark, 'colortext', undefined, { color: mark.attrs.color })
             }
         }
     };
@@ -703,7 +742,7 @@ async function createMView(editor, markdown) {
       .config(mNord.nord)
       .use(mCommonmark.commonmark)
       .use([remarkUnderlineToMarkdown, remarkUnderline, underlineSchema, underlineInputRule, toggleUnderlineCommand])
-      .use([remarkColortext, colortextMark, colortextInputRule, toggleColortextCommand])
+      .use([remarkColortextToMarkdown, remarkColortext, colortextMark, colortextInputRule, toggleColortextCommand])
       .use([linkInputRuleCosutom, updatedInsertImageInputRule])
       //.use(mGrdmmark.commonmark)
       .use(mEmoji.emoji)
@@ -891,7 +930,7 @@ function imageTooltipPluginView(view) {
       .use(mCommonmark.commonmark)
       .use(extendedUpdateImageCommand)
       .use([remarkUnderlineToMarkdown, remarkUnderline, underlineSchema, underlineInputRule, toggleUnderlineCommand])
-      .use([remarkColortext, colortextMark, colortextInputRule, toggleColortextCommand])
+      .use([remarkColortextToMarkdown, remarkColortext, colortextMark, colortextInputRule, toggleColortextCommand])
       .use([linkInputRuleCosutom, updatedInsertImageInputRule])
       //.use(mGrdmmark.commonmark)
       .use(mEmoji.emoji)
@@ -910,12 +949,6 @@ function imageTooltipPluginView(view) {
       .use([extendedImageSchemaPlugin/*, updatedInsertImageInputRule*/])
       .create()
 
-    // プラグインの削除
-    //await mEdit.remove(mCommonmark.insertImageInputRule)
-    //console.log('---remove mCommonmark.insertImageInputRule---')
-    //console.log(mCommonmark)
-    //console.log('---remove mCommonmark.insertImageInputRule---')
-    //console.log(editor.getPlugins());
     mEdit.action((ctx) => {
         const collabService = ctx.get(mCollab.collabServiceCtx);
         wsProvider.on('sync', isSynced => {
@@ -1000,17 +1033,16 @@ function ViewWidget(visible, version, viewText, rendered, contentURL, allowMathj
         var requestURL;
         if (typeof self.version() !== 'undefined') {
             if (self.version() === 'preview') {
-                var fixedMarkdown = '';
+                var toMarkdown = '';
                 console.log('---displaytext---')
                 if (mEdit !== undefined) {
                     mEdit.action((ctx) => {
                         const view = ctx.get(mCore.editorViewCtx);
                         const serializer = ctx.get(mCore.serializerCtx)
-                        const toMarkdown = serializer(view.state.doc)
-                        fixedMarkdown = fixCustomSyntax(toMarkdown);
+                        toMarkdown = serializer(view.state.doc)
                     })
                 }
-                self.displaySource(fixedMarkdown);
+                self.displaySource(toMarkdown);
                 if (document.getElementById("editWysiwyg").style.display === "none"){
                     document.getElementById("mMenuBar").style.display = "";
                     document.getElementById("mEditorFooter").style.display = "";
@@ -1728,23 +1760,22 @@ function ViewModel(options){
 
     // Command once to get edits, including collaborative editing or for only set preview comparison value.
     self.submitMText = function() {
-        var fixedMarkdown = '';
+        var toMarkdown = '';
         mEdit.action((ctx) => {
             console.log('---submit markdown---')
             const view = ctx.get(mCore.editorViewCtx);
             const serializer = ctx.get(mCore.serializerCtx)
             console.log(view.state.doc)
-            var toMarkdown = serializer(view.state.doc)
+            toMarkdown = serializer(view.state.doc)
             console.log(toMarkdown)
             //fix
-            fixedMarkdown = fixCustomSyntax(toMarkdown);
             console.log('---submit markdown---')
         })
         var pageUrl = window.contextVars.wiki.urls.page;
         $.ajax({
             url:pageUrl,
             type:'POST',
-            data: JSON.stringify({markdown: fixedMarkdown}),
+            data: JSON.stringify({markdown: toMarkdown}),
             contentType: 'application/json; charset=utf-8',
         }).done(function (resp) {
             const reloadUrl = (location.href).replace(location.search, '')
@@ -1755,18 +1786,6 @@ function ViewModel(options){
         });
     }
 }
-
-function fixCustomSyntax(toMarkdown) {
-    //fix underline && colortext
-    var replacedMarkdown = toMarkdown.replace(/\\<u>(.*?)\\<\/u>\\<span style="color: ([^"]+)">(.*?)\\<\/span>(\1)/g, '\\<u>\\<span style="color: $2">$1\\</span>\\</u>');
-    replacedMarkdown = replacedMarkdown.replace(/\\<span style="color: ([^"]+)">(.*?)\\<\/span>\\<u>(.*?)\\<\/u>\\(\1)/g, '\\<u>\\<span style="color: $2">$1\\</span>\\</u>');
-    //fix underline
-    replacedMarkdown = replacedMarkdown.replace(/\\<u>(.*?)\\<\/u>(\1)/g, '\\<u>$1\\</u>');
-    //fix colortext
-    replacedMarkdown = replacedMarkdown.replace(/\\<span style="color: ([^"]+)">(.*?)\\<\/span>\2/g, '\\<span style="color: $1">$2\\</span>');
-    return replacedMarkdown;
-};
-
 
 /**
  * If the 'Wiki images' folder does not exist for the current node, createFolder generates the request to create it
