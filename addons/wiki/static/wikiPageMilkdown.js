@@ -156,6 +156,8 @@ const underlinePlugin = function underlinePlugin() {
     function transformer(tree) {
       return flatMap(tree, function(node) {
 
+        if (node.type === 'code' || node.type === 'code_block') return [node];
+
         if (!isLiteral(node)) return [node];
   
         const value = node.value;
@@ -298,6 +300,9 @@ var remarkUnderlineToMarkdown = $remark('remarkUnderlineToMarkdown', function ()
 const colortextPlugin = function colortextPlugin() {
     function transformer(tree) {
         return flatMap(tree, function(node) {
+
+            if (node.type === 'code' || node.type === 'code_block') return [node];
+
             if (!isLiteral(node)) return [node];
 
             const value = node.value;
