@@ -229,22 +229,10 @@ const underlinePlugin = function underlinePlugin() {
           regex.lastIndex = lastIndex;
         }
 
-        if (lastIndex < str.length) {
+        if (lastIndex < value.length) {
           output.push({
             ...node,
-            value: str.slice(lastIndex),
-            position: {
-              start: {
-                line: node.position.start.line,
-                column: node.position.start.column + lastIndex,
-                offset: node.position.start.offset + lastIndex
-              },
-              end: {
-                line: node.position.end.line,
-                column: node.position.end.column,
-                offset: node.position.end.offset
-              }
-            }
+            value: value.slice(lastIndex)
           });
         }
   
@@ -386,22 +374,10 @@ const colortextPlugin = function colortextPlugin() {
                 regex.lastIndex = lastIndex;
             }
 
-            if (lastIndex < str.length) {
+            if (lastIndex < value.length) {
                 output.push({
                     ...node,
-                    value: str.slice(lastIndex),
-                    position: {
-                        start: {
-                            line: node.position.start.line,
-                            column: node.position.start.column + lastIndex,
-                            offset: node.position.start.offset + lastIndex
-                        },
-                        end: {
-                            line: node.position.end.line,
-                            column: node.position.end.column,
-                            offset: node.position.end.offset
-                        }
-                    }
+                    value: value.slice(lastIndex)
                 });
             }
 
