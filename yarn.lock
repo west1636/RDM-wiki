@@ -33,26 +33,6 @@
   resolved "https://registry.yarnpkg.com/@discoveryjs/json-ext/-/json-ext-0.5.7.tgz#1d572bfbbe14b7704e0ba0f39b74815b84870d70"
   integrity sha512-dBVuXR082gk3jsFp7Rd/JI4kytwGHecnCoTtXFb7DB6CNHp4rg5k1bhg0nWdLGLnOV71lmDzGQaLMy8iPLY0pw==
 
-"@floating-ui/core@^1.6.0":
-  version "1.6.7"
-  resolved "https://registry.yarnpkg.com/@floating-ui/core/-/core-1.6.7.tgz#7602367795a390ff0662efd1c7ae8ca74e75fb12"
-  integrity sha512-yDzVT/Lm101nQ5TCVeK65LtdN7Tj4Qpr9RTXJ2vPFLqtLxwOrpoxAHAJI8J3yYWUc40J0BDBheaitK5SJmno2g==
-  dependencies:
-    "@floating-ui/utils" "^0.2.7"
-
-"@floating-ui/dom@^1.5.1":
-  version "1.6.10"
-  resolved "https://registry.yarnpkg.com/@floating-ui/dom/-/dom-1.6.10.tgz#b74c32f34a50336c86dcf1f1c845cf3a39e26d6f"
-  integrity sha512-fskgCFv8J8OamCmyun8MfjB1Olfn+uZKjOKZ0vhYF3gRmEUXcGOjxWL8bBr7i4kIuPZ2KD2S3EUIOxnjC8kl2A==
-  dependencies:
-    "@floating-ui/core" "^1.6.0"
-    "@floating-ui/utils" "^0.2.7"
-
-"@floating-ui/utils@^0.2.7":
-  version "0.2.7"
-  resolved "https://registry.yarnpkg.com/@floating-ui/utils/-/utils-0.2.7.tgz#d0ece53ce99ab5a8e37ebdfe5e32452a2bfc073e"
-  integrity sha512-X8R8Oj771YRl/w+c1HqAC1szL8zWQRwFvgDwT129k9ACdBoud/+/rX9V0qiMl6LWUdP9voC2nDVZYPMQQsb6eA==
-
 "@jridgewell/gen-mapping@^0.3.5":
   version "0.3.5"
   resolved "https://registry.yarnpkg.com/@jridgewell/gen-mapping/-/gen-mapping-0.3.5.tgz#dcce6aff74bdf6dad1a95802b69b04a2fcb1fb36"
@@ -93,193 +73,192 @@
     "@jridgewell/resolve-uri" "^3.1.0"
     "@jridgewell/sourcemap-codec" "^1.4.14"
 
-"@milkdown/core@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@milkdown/core/-/core-7.5.0.tgz#e8b1d27adb7f4dd358d87bcb5d42d3c66746dd54"
-  integrity sha512-s2kjp6QkCKON6xWHJEZXPhgQd2ZxQjXf2/qmTQXXSsiEkdviflnXfP7SuH+ivsBnxlxvkQn2b5RLo7sa30fhYw==
+"@milkdown/core@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/core/-/core-7.3.6.tgz#814261c1b62f1330e6e398900a3a0eeb57506d78"
+  integrity sha512-7jk1x0xNNr53FxZowxWNpIvD6yl8LlHP/8X9DyWuvKQl+H1oSpVrkcOv1CO3QEjCrSiGGStsoS4feCMhtCKODg==
   dependencies:
-    "@milkdown/exception" "7.5.0"
+    "@milkdown/exception" "7.3.6"
     remark-parse "^11.0.0"
     remark-stringify "^11.0.0"
     tslib "^2.5.0"
     unified "^11.0.3"
 
-"@milkdown/ctx@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@milkdown/ctx/-/ctx-7.5.0.tgz#0dd88b1ac5c7264914cebefb546cc9159ddacbdb"
-  integrity sha512-RKGhEh7LCCTb/iY7TOgrN3vKGtQdsNi7039PY5Y561o+KLldQE5BdkPyqwedZwSszZrsDO8L6IT/SxWgtj1tRg==
+"@milkdown/ctx@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/ctx/-/ctx-7.3.6.tgz#f4c04210470fbde0e8033e29bda92f30211cbb95"
+  integrity sha512-ivVX5XIpT1/b4b5JC+ffpcxsrB+R0cNodry+AL63V2tvvTmG7IvKkCf8CHI6gnN17C3soHi8/auzYRYJBXzTAQ==
   dependencies:
-    "@milkdown/exception" "7.5.0"
+    "@milkdown/exception" "7.3.6"
     tslib "^2.5.0"
 
-"@milkdown/exception@7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@milkdown/exception/-/exception-7.5.0.tgz#f2f79144020a3d7bacd7baa1d0e3be6e1d7741c7"
-  integrity sha512-8B4v9otcMLX6wpfwoyic7dJD1Z39rgz8zFzqCZ6WyP9LGDb9AoNbATHvY6CPLZWy+C138WLoOhw9jsI1RIxw+g==
+"@milkdown/exception@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/exception/-/exception-7.3.6.tgz#b01ce7d5e96684f84e0f77ad0de68b3d027214ab"
+  integrity sha512-oEcQVyp3Lcvw3ySBc2EeCFAN1t/zvY+pdBsBSsIDB2uYueQK2PGSkzhd5WbvHnzv4lV4P19hoyPLwviqvQbVqA==
   dependencies:
     tslib "^2.5.0"
 
-"@milkdown/plugin-block@^7.5.4":
-  version "7.5.4"
-  resolved "https://registry.yarnpkg.com/@milkdown/plugin-block/-/plugin-block-7.5.4.tgz#ff05f624258f4a02e9aae58126e56784a9b665b6"
-  integrity sha512-32ZBhTgZqmi6eQILjH6g2rinLELjfEyyn1MqSr1STudnJdlyNWYZNb9FnwljI/W8jx37h4FJUpiLhzGVmit11g==
+"@milkdown/plugin-block@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/plugin-block/-/plugin-block-7.3.6.tgz#0226c1f9d4759f64d93014c9b7685a722957a9c2"
+  integrity sha512-GYvY1aUaD54IiFIAO2UL4ZltReUiFd7qa5Uw2n2RS/5JEW8rpNKNx0w2UWS02tq9+A+Fdvq1PLT6Nispmgnw7Q==
   dependencies:
-    "@floating-ui/dom" "^1.5.1"
-    "@milkdown/exception" "7.5.0"
-    "@milkdown/utils" "7.5.0"
-    "@types/lodash.throttle" "^4.1.9"
-    lodash.throttle "^4.1.1"
-    tslib "^2.5.0"
-
-"@milkdown/plugin-clipboard@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@milkdown/plugin-clipboard/-/plugin-clipboard-7.5.0.tgz#06b917f849483f890ad66c33668079b526a4f115"
-  integrity sha512-8AISCDWyLYHEPIpckO3P5+mpxCAAP8S7IF4+1J0xcjVzFx6RTDQiIEgutqjqq4hl3edhaXBK7oNhNNrmWw3j6g==
-  dependencies:
-    "@milkdown/utils" "7.5.0"
-    tslib "^2.5.0"
-
-"@milkdown/plugin-collab@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@milkdown/plugin-collab/-/plugin-collab-7.5.0.tgz#23e1589dcdb4148d6e9b48d7dbcc92b8b72d760e"
-  integrity sha512-1seeR5rafTLmy60N9ypvuXOAHz1gV/n35Tog5Fjym2sDUCV+ltEGHKu+r+TIyG/o8tR+AGUhit8VE1V2FAS3iA==
-  dependencies:
-    "@milkdown/exception" "7.5.0"
-    "@milkdown/utils" "7.5.0"
-    tslib "^2.5.0"
-
-"@milkdown/plugin-cursor@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@milkdown/plugin-cursor/-/plugin-cursor-7.5.0.tgz#665a14107b773ea3508a373f2b7fad28e8048875"
-  integrity sha512-oAfJtuNCZwjvcQ+Si6b5VY4eWdxMTXTkhNXIuSS9fv0+2je1YqrjK9jgWMK+3D80AfJh7KiWG0fyOduTpgbs0A==
-  dependencies:
-    "@milkdown/utils" "7.5.0"
-    tslib "^2.5.0"
-
-"@milkdown/plugin-emoji@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@milkdown/plugin-emoji/-/plugin-emoji-7.5.0.tgz#e966233cfe5cb739723a58c3f97f02b7ae5517e8"
-  integrity sha512-qcbZ8+pDHZjQfqJeA6nWL5CGxsH5I5CrxDTtjOJAZc4QRhprzNEw8YlTGl3O6Oc5MLGCFyw2MHGvda0OVMCUEA==
-  dependencies:
-    "@milkdown/exception" "7.5.0"
-    "@milkdown/utils" "7.5.0"
-    emoji-regex "^10.0.0"
-    node-emoji "^2.1.3"
-    remark-emoji "^5.0.0"
-    tslib "^2.5.0"
-    twemoji "^14.0.2"
-    unist-util-visit "^5.0.0"
-
-"@milkdown/plugin-history@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@milkdown/plugin-history/-/plugin-history-7.5.0.tgz#3871295f986901e9bcde484c26e0e5e8c335dcf7"
-  integrity sha512-Y0d5nBFsp3sInWQ8DKdL9vCaYiQxh4/UaXpP6McMNc8STEohbld3y/SzsGfIKAUEJl5LATyj3hrhksIqdc5YOA==
-  dependencies:
-    "@milkdown/utils" "7.5.0"
-    tslib "^2.5.0"
-
-"@milkdown/plugin-indent@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@milkdown/plugin-indent/-/plugin-indent-7.5.0.tgz#84ba50cee749532751de639f2c3f3fa236e95693"
-  integrity sha512-RYJsj+co5jcTzIs0mzmb2qhbf72sv2oNL8cWMW0pFF9RVbCNJW24SUAaJBbIKvRsXAeMXaQT/aN2krCkQ0Z29g==
-  dependencies:
-    "@milkdown/utils" "7.5.0"
-    tslib "^2.5.0"
-
-"@milkdown/plugin-listener@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@milkdown/plugin-listener/-/plugin-listener-7.5.0.tgz#e6dccaf35d9b52f2e1709932c049d3fafd05792d"
-  integrity sha512-Dz6BPKYgJ5iNbyoC7D+gXDf14U+71w39VqxKDyZKMRN5RC8QTjaVVolduVLaiXxgN6jm6DKQq46nQxVxMxMf4Q==
-  dependencies:
-    "@milkdown/utils" "7.5.0"
-    "@types/lodash.debounce" "^4.0.7"
-    lodash.debounce "^4.0.8"
-    tslib "^2.5.0"
-
-"@milkdown/plugin-math@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@milkdown/plugin-math/-/plugin-math-7.5.0.tgz#1570fb067042912a46abce825a57d37d62857fb1"
-  integrity sha512-EQ6P2Q6NNelzMKOdqASrNy2boEMwN6bH+lSxioup/J2Q6HhGVyoPNC2f4aCTgNSJ3mWmS0RQmWkqyA50YJtu6A==
-  dependencies:
-    "@milkdown/exception" "7.5.0"
-    "@milkdown/utils" "7.5.0"
-    "@types/katex" "^0.16.0"
-    katex "^0.16.0"
-    remark-math "^6.0.0"
-    tslib "^2.5.0"
-
-"@milkdown/plugin-prism@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@milkdown/plugin-prism/-/plugin-prism-7.5.0.tgz#8c46b348cc43bc1d57a16a13c32558120e4a30bb"
-  integrity sha512-e/FsB6iaZGlmyCPtZ7bHPZ9e6nctheqKYbkEMRX6VZtS3x39LpeZPL84AJJyqwprp05A5XurHL/QE9+N1Wmilg==
-  dependencies:
-    "@milkdown/utils" "7.5.0"
-    refractor "^4.0.0"
-    tslib "^2.5.0"
-
-"@milkdown/plugin-slash@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@milkdown/plugin-slash/-/plugin-slash-7.5.0.tgz#8ffd3498b0770e3e67b83ee94e34044504d7923e"
-  integrity sha512-S0hDv2qX6Iah3tf8QXGNxPz5PxBK8Wo5RZsP7k9V2jJb7yC5Gop3WeEJAffGw1p1UPrVNSNfZEdtbNNj9LXDYg==
-  dependencies:
-    "@floating-ui/dom" "^1.5.1"
-    "@milkdown/exception" "7.5.0"
-    "@milkdown/utils" "7.5.0"
-    "@types/lodash.debounce" "^4.0.7"
-    lodash.debounce "^4.0.8"
-    tslib "^2.5.0"
-
-"@milkdown/plugin-tooltip@^7.5.3":
-  version "7.5.3"
-  resolved "https://registry.yarnpkg.com/@milkdown/plugin-tooltip/-/plugin-tooltip-7.5.3.tgz#02c0280c10500693dd0267fcd04fe59e930257e6"
-  integrity sha512-n8woJCNqyPSZVmaiHTLUOJ4ixsmPIspUuDFgq4a9Mu5VUtWIdxtaRNNIO1exuXEMZKfA1d2EgagJbIDMDl5sRQ==
-  dependencies:
-    "@floating-ui/dom" "^1.5.1"
-    "@milkdown/exception" "7.5.0"
-    "@milkdown/utils" "7.5.0"
+    "@milkdown/exception" "7.3.6"
+    "@milkdown/utils" "7.3.6"
     "@types/lodash.debounce" "^4.0.7"
     lodash.debounce "^4.0.8"
     tippy.js "^6.3.7"
     tslib "^2.5.0"
 
-"@milkdown/plugin-upload@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@milkdown/plugin-upload/-/plugin-upload-7.5.0.tgz#102f7a4a5e15d962fde4e2b39454183afd695970"
-  integrity sha512-B3vqrXMpeH8fVLugtuZ1ElHpYVY2KSmT+JWstq/4dUEfHI0awUEyz8aErBMmuq/YXmqQDPdrvPz/5y25Q98mtQ==
+"@milkdown/plugin-clipboard@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/plugin-clipboard/-/plugin-clipboard-7.3.6.tgz#27b7abec69a50fdc2d6356d391d2751f24cb2316"
+  integrity sha512-840aG6Ntp/Wdf/I6vuyni4ycDqyO0SsAEZI0t2KmPXqCj+fW2sf0HJtsa/w/R5lBOHhxUsW98nqUvP0BeKL1Cg==
   dependencies:
-    "@milkdown/exception" "7.5.0"
-    "@milkdown/utils" "7.5.0"
+    "@milkdown/utils" "7.3.6"
     tslib "^2.5.0"
 
-"@milkdown/preset-commonmark@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@milkdown/preset-commonmark/-/preset-commonmark-7.5.0.tgz#dceca30657425df9b0479e6dbce4be757061d62e"
-  integrity sha512-tBQlBuCfoJgKsHH5Xf6pBCMrsOhxrYNxfOUqH3Lwybrw05SV0vqIrBnjTQvhMKnWCKaomYkE3G0NnoSbCgrEuQ==
+"@milkdown/plugin-collab@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/plugin-collab/-/plugin-collab-7.3.6.tgz#9af2e97eb92e3ff557e35ace25a639ee55b4808e"
+  integrity sha512-4K01U4olmWAxEYzc4NWfwVzWVIoIsUq22/EpOPndXoYvn1UwAKjS45AlyhvMKX7VpCIvRWCyIYaijRkKQczUsQ==
   dependencies:
-    "@milkdown/exception" "7.5.0"
-    "@milkdown/utils" "7.5.0"
+    "@milkdown/exception" "7.3.6"
+    "@milkdown/utils" "7.3.6"
+    tslib "^2.5.0"
+
+"@milkdown/plugin-cursor@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/plugin-cursor/-/plugin-cursor-7.3.6.tgz#84005779248bf6223955db3a1ef906f2165a854d"
+  integrity sha512-6Q5YPO+uLug+NgKVGsDxiicK1TE0GzjvgXJvJLm2VNOufIuOy5onaT34qDLzxmiGSM+8KzCfv5D/B8wZRW+0cQ==
+  dependencies:
+    "@milkdown/utils" "7.3.6"
+    tslib "^2.5.0"
+
+"@milkdown/plugin-emoji@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/plugin-emoji/-/plugin-emoji-7.3.6.tgz#772613b0681d4940297adc0ac8a7ed37c3cf40ec"
+  integrity sha512-NzqMM73chX4s99iL55oeAKNzemQ3f/R+1lTGic4p2YgDW0UKrejw8mhjGIPNNxS0JtdvASPS0Nieq8sxeYjI0A==
+  dependencies:
+    "@milkdown/exception" "7.3.6"
+    "@milkdown/utils" "7.3.6"
+    "@types/node-emoji" "^2.0.0"
+    emoji-regex "^10.0.0"
+    node-emoji "^2.0.0"
+    remark-emoji "^4.0.0"
+    tslib "^2.5.0"
+    twemoji "^14.0.2"
+    unist-util-visit "^5.0.0"
+
+"@milkdown/plugin-history@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/plugin-history/-/plugin-history-7.3.6.tgz#94f66b180dcf01f02ce3a7e983024669be7aa2c4"
+  integrity sha512-c6JCwzGTp+N+9ZDtJ3YsmY5jU1j/OYr4kPok/zpSufihSK+np5+ixsuhmVLfyNlpllDiOD1HaxScRCdJGWa7tQ==
+  dependencies:
+    "@milkdown/utils" "7.3.6"
+    tslib "^2.5.0"
+
+"@milkdown/plugin-indent@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/plugin-indent/-/plugin-indent-7.3.6.tgz#2f3aa9c51f6d777b9b48c2ad532a331786102371"
+  integrity sha512-8cLk94CiKGYqST6bkcmQZVkPrSaS6Bcuvwze1QPOuUWNBZq/wy6MG6koi++bVeRevsPDljcdJ8QRO5xABrOZhw==
+  dependencies:
+    "@milkdown/utils" "7.3.6"
+    tslib "^2.5.0"
+
+"@milkdown/plugin-listener@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/plugin-listener/-/plugin-listener-7.3.6.tgz#352b6241ca71233521bae599357b13d7da8e806d"
+  integrity sha512-sp9w36Vn/XLSCKl/4fqUIz2NNJnU1hXzX5X/XHH3WXCszqs6cJPRTtR6k8wAoTG2le0sW8EOdmptdjEsC2w5+Q==
+  dependencies:
+    "@milkdown/utils" "7.3.6"
+    "@types/lodash.debounce" "^4.0.7"
+    lodash.debounce "^4.0.8"
+    tslib "^2.5.0"
+
+"@milkdown/plugin-math@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/plugin-math/-/plugin-math-7.3.6.tgz#6f5732fd67c4651bdb9e353df8183dd6da9af667"
+  integrity sha512-VA/s/ZVIkDmAS0/9CdtE6QuYt8R2lypDzgEGm6KJMPy7k4j7G1AgkSBIpogSk1GA+JMQoEdUGE6+kj9siI6hTg==
+  dependencies:
+    "@milkdown/exception" "7.3.6"
+    "@milkdown/utils" "7.3.6"
+    "@types/katex" "^0.16.0"
+    katex "^0.16.0"
+    remark-math "^6.0.0"
+    tslib "^2.5.0"
+
+"@milkdown/plugin-prism@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/plugin-prism/-/plugin-prism-7.3.6.tgz#c111274011ff957b7a0a504f07d2643a0463dc2e"
+  integrity sha512-DQBjfvXD3HOETd8gGeLmjz+VeohEwXnDb9HENIrdscJV4ux3jkfJ2wYQfbz6GSWE3+GQOs/9zrBawNK+q+GzOA==
+  dependencies:
+    "@milkdown/utils" "7.3.6"
+    refractor "^4.0.0"
+    tslib "^2.5.0"
+
+"@milkdown/plugin-slash@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/plugin-slash/-/plugin-slash-7.3.6.tgz#05c0052415ef41c3ee5c16de9e83baff97f17d60"
+  integrity sha512-+1/tfjVYEEyWdjlmgD8QIyitX+8Hatc6vEUi2KAS7MV81TD5Ds02nINF2jkkBe2PfL7+TGUe+t74VMt+amOR4A==
+  dependencies:
+    "@milkdown/exception" "7.3.6"
+    "@milkdown/utils" "7.3.6"
+    "@types/lodash.debounce" "^4.0.7"
+    lodash.debounce "^4.0.8"
+    tippy.js "^6.3.7"
+    tslib "^2.5.0"
+
+"@milkdown/plugin-tooltip@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/plugin-tooltip/-/plugin-tooltip-7.3.6.tgz#8d162929051e304f1b3025b0d22d11f5beb4776b"
+  integrity sha512-oIKZIxq8XD51D9hpJtej1zZevwlk8up+EOgBLmQBEcdlP/PbY6r2GbUEE9Pk0yYorJjEzwlcL7tem185weebaQ==
+  dependencies:
+    "@milkdown/exception" "7.3.6"
+    "@milkdown/utils" "7.3.6"
+    "@types/lodash.debounce" "^4.0.7"
+    lodash.debounce "^4.0.8"
+    tippy.js "^6.3.7"
+    tslib "^2.5.0"
+
+"@milkdown/plugin-upload@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/plugin-upload/-/plugin-upload-7.3.6.tgz#ca71ca2cb2247799bda9df92e748bfbe347377fb"
+  integrity sha512-s2zCez9tZmza2SlnVrEbqJ+PQWR869EBCcvhWs4FDe8caehDQ7CriQ65J7nwBK9JoU1kT+kDMithbVWIxLqRbQ==
+  dependencies:
+    "@milkdown/exception" "7.3.6"
+    "@milkdown/utils" "7.3.6"
+    tslib "^2.5.0"
+
+"@milkdown/preset-commonmark@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/preset-commonmark/-/preset-commonmark-7.3.6.tgz#301ba09478c30acba4a8b05d1b81aebcbcc7c002"
+  integrity sha512-AUhrcyPMPXWnHJLIth/cK4IHTshlJgIw2RavFOmE2IyTxjgN4JCLg8MSla5wqwNUcdDMxKH0VmVyNImwt+c4Mg==
+  dependencies:
+    "@milkdown/exception" "7.3.6"
+    "@milkdown/utils" "7.3.6"
     "@sindresorhus/slugify" "^2.2.0"
     remark-inline-links "^7.0.0"
     tslib "^2.5.0"
     unist-util-visit "^5.0.0"
 
-"@milkdown/preset-gfm@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@milkdown/preset-gfm/-/preset-gfm-7.5.0.tgz#d2dafe4c5c5a76f5ee376c92c11e8e2ede29e16d"
-  integrity sha512-pqw0ZEhuIV6DSfWa6Pwo/iMDQkPmaMx6fP6mWtMkDAViDVV09zj0WkGi73kU+KzBOAHewpJXrpl1ipOkp4aaVQ==
+"@milkdown/preset-gfm@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/preset-gfm/-/preset-gfm-7.3.6.tgz#142ab75d0443549c2f40d3ad0a31c1f8c8fe5b4c"
+  integrity sha512-7T1EFTHgGLtdPUP4ciKbwpTo7NKu4BlLoJHmDS4yLZJtg+hw28ZPhya0mY+dOOjETf0Nd49hh4REM4kpOd7n2A==
   dependencies:
-    "@milkdown/exception" "7.5.0"
-    "@milkdown/utils" "7.5.0"
-    prosemirror-safari-ime-span "^1.0.1"
+    "@milkdown/exception" "7.3.6"
+    "@milkdown/utils" "7.3.6"
     remark-gfm "^4.0.0"
     tslib "^2.5.0"
 
-"@milkdown/prose@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@milkdown/prose/-/prose-7.5.0.tgz#5cb316d9f2d71cf707af8eb8cb35f859ad91d874"
-  integrity sha512-zufSFhQJ24SI/gsRXRuOoB5buSYIl5455fdknOBHjmK98qnLWZcUs/RZcBQezZXmNc+5gINkoDmAnQPiB18H7A==
+"@milkdown/prose@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/prose/-/prose-7.3.6.tgz#134c502a5f9c7ccb71bfa9a9a7358607df3df7c7"
+  integrity sha512-uBPgqghlDLxlfFPPVpPslM0N1h/6RFol2NTug65LK00bqvnNz8AUB712LMORb+KC7SGPcfUSu3z54Wxx2a27fg==
   dependencies:
-    "@milkdown/exception" "7.5.0"
+    "@milkdown/exception" "7.3.6"
     prosemirror-changeset "^2.2.1"
     prosemirror-commands "^1.5.2"
     prosemirror-dropcursor "^1.8.1"
@@ -290,37 +269,37 @@
     prosemirror-model "^1.19.3"
     prosemirror-schema-list "^1.3.0"
     prosemirror-state "^1.4.3"
-    prosemirror-tables "^1.3.7"
+    prosemirror-tables "^1.3.4"
     prosemirror-transform "^1.7.5"
     prosemirror-view "^1.31.7"
     tslib "^2.5.0"
 
-"@milkdown/theme-nord@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@milkdown/theme-nord/-/theme-nord-7.5.0.tgz#3c2795f4a2569968581e31c39d51c78e1963d7e0"
-  integrity sha512-pLvmcg8YgPx9kuTtQxpUNf52laFe8s9DQ0v5QuGX7J+1jJ45C+gRSi5QbqrCBJfwEW+X/hvXyB+CpwH3ztjjUg==
+"@milkdown/theme-nord@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/theme-nord/-/theme-nord-7.3.6.tgz#3ae83c19be43b2d98ba966a994e598478e941b05"
+  integrity sha512-JGQKn2IGD312cmoyBa5aZkM/OBMku4O+OL7QkVcDCx2HEohdx+ym/Fn/2r4f1dDYSrd5JZlNHD/rRVDv7FfjzQ==
   dependencies:
     clsx "^2.0.0"
     tslib "^2.5.0"
 
-"@milkdown/transformer@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@milkdown/transformer/-/transformer-7.5.0.tgz#0259bf774f160e0fe31162c1b2ba3d251331aee4"
-  integrity sha512-RL4OAINlf5IZQkiknxftye8Gyu1jJ9FcbkQwsEDfprK4mt5b9eeJO/o5PGv/U8GMgfmDX5nMHQ8IqNrA4hcPzA==
+"@milkdown/transformer@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/transformer/-/transformer-7.3.6.tgz#b264aa9fe8d803468d71ec175c15579a599e1029"
+  integrity sha512-uE3sRoufBRHyqULJg93g7eTcgmA6hJVX/hiy+p+whle2EB6q3nNJeHoZZrNR8A32o3i8IBvmEIvvguxUtK9RyQ==
   dependencies:
-    "@milkdown/exception" "7.5.0"
+    "@milkdown/exception" "7.3.6"
     remark "^15.0.1"
     remark-parse "^11.0.0"
     remark-stringify "^11.0.0"
     tslib "^2.5.0"
     unified "^11.0.3"
 
-"@milkdown/utils@7.5.0", "@milkdown/utils@^7.5.0":
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/@milkdown/utils/-/utils-7.5.0.tgz#5f969fb9fee3820534abd70bb779673bbe3858d1"
-  integrity sha512-Y5sZWkgWDOH9Hz/i2XPRw3QHKENDtII87xThBCpWJMkoYrl5p8ldYx+j21hax0ZjYaDsvgj58SAruABMdG0wNQ==
+"@milkdown/utils@7.3.6":
+  version "7.3.6"
+  resolved "https://registry.yarnpkg.com/@milkdown/utils/-/utils-7.3.6.tgz#5442fb27a28ea4f34d0631e74871dd21dc81ce4b"
+  integrity sha512-V2ljZN72PIJ/7dQmEtasyNVi7wpgfjxmPX+b82cncd3vA+m/4wKosTeK+oHRIlt0JlpMGNrxd4ikIGHoy1+6UQ==
   dependencies:
-    "@milkdown/exception" "7.5.0"
+    "@milkdown/exception" "7.3.6"
     nanoid "^5.0.0"
     tslib "^2.5.0"
 
@@ -414,19 +393,12 @@
   dependencies:
     "@types/lodash" "*"
 
-"@types/lodash.throttle@^4.1.9":
-  version "4.1.9"
-  resolved "https://registry.yarnpkg.com/@types/lodash.throttle/-/lodash.throttle-4.1.9.tgz#f17a6ae084f7c0117bd7df145b379537bc9615c5"
-  integrity sha512-PCPVfpfueguWZQB7pJQK890F2scYKoDUL3iM522AptHWn7d5NQmeS/LTEHIcLr5PaTzl3dK2Z0xSUHHTHwaL5g==
-  dependencies:
-    "@types/lodash" "*"
-
 "@types/lodash@*":
   version "4.17.7"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.17.7.tgz#2f776bcb53adc9e13b2c0dfd493dfcbd7de43612"
   integrity sha512-8wTvZawATi/lsmNu10/j2hk1KEP0IvjubqPE3cu1Xz7xfXXt5oCq3SNUz4fMIP4XGF9Ky+Ue2tBA3hcS7LSBlA==
 
-"@types/mdast@^4.0.0", "@types/mdast@^4.0.4":
+"@types/mdast@^4.0.0", "@types/mdast@^4.0.2":
   version "4.0.4"
   resolved "https://registry.yarnpkg.com/@types/mdast/-/mdast-4.0.4.tgz#7ccf72edd2f1aa7dd3437e180c64373585804dd6"
   integrity sha512-kGaNbPh1k7AFzgpud/gMdvIm5xuECykRR+JnWKQno9TAXVa6WIVCGTPvYGekIDL4uwCZQSYbUxNBSb1aUo79oA==
@@ -437,6 +409,13 @@
   version "0.7.34"
   resolved "https://registry.yarnpkg.com/@types/ms/-/ms-0.7.34.tgz#10964ba0dee6ac4cd462e2795b6bebd407303433"
   integrity sha512-nG96G3Wp6acyAgJqGasjODb+acrI7KltPiRxzHPXnP3NgI28bpQDRv53olbqGXbfcgF5aiiHmO3xpwEpS5Ld9g==
+
+"@types/node-emoji@^2.0.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@types/node-emoji/-/node-emoji-2.1.0.tgz#adbb238f377bea16f014279ee7e32bb9ae26bd41"
+  integrity sha512-LBGWP2LL5A+PpcvzrgXCFcHt9N1l5bqQn05ZUQFFM625k/tmc2w9ghT4kUwQN6gIPlX6qnDOfekmJmV9BywV9g==
+  dependencies:
+    node-emoji "*"
 
 "@types/node@*":
   version "20.14.11"
@@ -4385,11 +4364,6 @@ lodash.set@^4.3.2:
   version "4.3.2"
   resolved "https://registry.yarnpkg.com/lodash.set/-/lodash.set-4.3.2.tgz#d8757b1da807dde24816b0d6a84bea1a76230b23"
 
-lodash.throttle@^4.1.1:
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/lodash.throttle/-/lodash.throttle-4.1.1.tgz#c23e91b710242ac70c37f1e1cda9274cc39bf2f4"
-  integrity sha512-wIkUCfVKpVsWo3JSZlc+8MB5it+2AN5W8J7YVMST30UrvcQNZ1Okbj+rbVniijTWE6FGYy4XJq/rHkas8qJMLQ==
-
 lodash.uniq@^4.5.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.uniq/-/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
@@ -5229,7 +5203,7 @@ nice-try@^1.0.4:
   version "1.0.5"
   resolved "https://registry.yarnpkg.com/nice-try/-/nice-try-1.0.5.tgz#a3378a7696ce7d223e88fc9b764bd7ef1089e366"
 
-node-emoji@^2.1.3:
+node-emoji@*, node-emoji@^2.0.0, node-emoji@^2.1.0:
   version "2.1.3"
   resolved "https://registry.yarnpkg.com/node-emoji/-/node-emoji-2.1.3.tgz#93cfabb5cc7c3653aa52f29d6ffb7927d8047c06"
   integrity sha512-E2WEOVsgs7O16zsURJ/eH8BqhF029wGpEOnv7Urwdo2wmQanOACwJQh0devF9D9RhoZru0+9JXIS0dBXIAz+lA==
@@ -6119,14 +6093,6 @@ prosemirror-model@^1.0.0, prosemirror-model@^1.19.3, prosemirror-model@^1.20.0, 
   dependencies:
     orderedmap "^2.0.0"
 
-prosemirror-safari-ime-span@^1.0.1:
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/prosemirror-safari-ime-span/-/prosemirror-safari-ime-span-1.0.2.tgz#20c9dcb33dfd68b2e59de8923b6506f9dc07c356"
-  integrity sha512-QJqD8s1zE/CuK56kDsUhndh5hiHh/gFnAuPOA9ytva2s85/ZEt2tNWeALTJN48DtWghSKOmiBsvVn2OlnJ5H2w==
-  dependencies:
-    prosemirror-state "^1.4.3"
-    prosemirror-view "^1.33.8"
-
 prosemirror-schema-list@^1.3.0:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/prosemirror-schema-list/-/prosemirror-schema-list-1.4.1.tgz#78b8d25531db48ca9688836dbde50e13ac19a4a1"
@@ -6145,10 +6111,10 @@ prosemirror-state@^1.0.0, prosemirror-state@^1.2.2, prosemirror-state@^1.3.1, pr
     prosemirror-transform "^1.0.0"
     prosemirror-view "^1.27.0"
 
-prosemirror-tables@^1.3.7:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/prosemirror-tables/-/prosemirror-tables-1.5.0.tgz#3ba1ea3d53852505cc0d2037ce386973bb639a7d"
-  integrity sha512-VMx4zlYWm7aBlZ5xtfJHpqa3Xgu3b7srV54fXYnXgsAcIGRqKSrhiK3f89omzzgaAgAtDOV4ImXnLKhVfheVNQ==
+prosemirror-tables@^1.3.4:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/prosemirror-tables/-/prosemirror-tables-1.4.0.tgz#59c3dc241e03fc4ba8c093995b130d2980f0ffdc"
+  integrity sha512-fxryZZkQG12fSCNuZDrYx6Xvo2rLYZTbKLRd8rglOPgNJGMKIS8uvTt6gGC38m7UCu/ENnXIP9pEz5uDaPc+cA==
   dependencies:
     prosemirror-keymap "^1.1.2"
     prosemirror-model "^1.8.1"
@@ -6167,15 +6133,6 @@ prosemirror-view@^1.0.0, prosemirror-view@^1.1.0, prosemirror-view@^1.13.3, pros
   version "1.33.9"
   resolved "https://registry.yarnpkg.com/prosemirror-view/-/prosemirror-view-1.33.9.tgz#0ed61ae42405cfc9799bde4db86badbb1ad99b08"
   integrity sha512-xV1A0Vz9cIcEnwmMhKKFAOkfIp8XmJRnaZoPqNXrPS7EK5n11Ov8V76KhR0RsfQd/SIzmWY+bg+M44A2Lx/Nnw==
-  dependencies:
-    prosemirror-model "^1.20.0"
-    prosemirror-state "^1.0.0"
-    prosemirror-transform "^1.1.0"
-
-prosemirror-view@^1.33.8:
-  version "1.34.2"
-  resolved "https://registry.yarnpkg.com/prosemirror-view/-/prosemirror-view-1.34.2.tgz#239a1766e46e364666e2b850855361929c4236df"
-  integrity sha512-tPX/V2Xd70vrAGQ/V9CppJtPKnQyQMypJGlLylvdI94k6JaG+4P6fVmXPR1zc1eVTW0gq3c6zsfqwJKCRLaG9Q==
   dependencies:
     prosemirror-model "^1.20.0"
     prosemirror-state "^1.0.0"
@@ -6531,15 +6488,15 @@ regjsparser@^0.1.4:
   dependencies:
     jsesc "~0.5.0"
 
-remark-emoji@^5.0.0:
-  version "5.0.1"
-  resolved "https://registry.yarnpkg.com/remark-emoji/-/remark-emoji-5.0.1.tgz#fb08ef9f5a1a036e765d68ac3dcc1b81624f4f6f"
-  integrity sha512-QCqTSvcZ65Ym+P+VyBKd4JfJfh7icMl7cIOGVmPMzWkDtdD8pQ0nQG7yxGolVIiMzSx90EZ7SwNiVpYpfTxn7w==
+remark-emoji@^4.0.0:
+  version "4.0.1"
+  resolved "https://registry.yarnpkg.com/remark-emoji/-/remark-emoji-4.0.1.tgz#671bfda668047689e26b2078c7356540da299f04"
+  integrity sha512-fHdvsTR1dHkWKev9eNyhTo4EFwbUvJ8ka9SgeWkMPYFX4WoI7ViVBms3PjlQYgw5TLvNQso3GUB/b/8t3yo+dg==
   dependencies:
-    "@types/mdast" "^4.0.4"
+    "@types/mdast" "^4.0.2"
     emoticon "^4.0.1"
     mdast-util-find-and-replace "^3.0.1"
-    node-emoji "^2.1.3"
+    node-emoji "^2.1.0"
     unified "^11.0.4"
 
 remark-gfm@^4.0.0:
