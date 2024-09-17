@@ -476,7 +476,7 @@ const colortextMark = $markSchema('colortext', function () {
 });
 
 const colortextInputRule = $inputRule(function (ctx) {
-    return markRule(/<span style="color:\s*([^;]+);?">([^<]+)<\/span>/, colortextMark.type(ctx), {
+    return markRule(/<span\s+style=['"]color:\s*([^;'"]+?)['"][^>]*>([^<]+)<\/span>/i, colortextMark.type(ctx), {
         getAttr: match => ({ color: match[1] }) // 正規表現にマッチした色情報を取得し、attrsとして返す
     });
 });
@@ -511,42 +511,19 @@ var extendedUpdateImageCommand = $command('ExtendedUpdateImage', ctx => {
             const schema = ctx.get(mCore.schemaCtx);
             var node = nodeWithPos.node;
             var pos = nodeWithPos.pos;
-            //('---extendedUpdateImageCommand---')
-            //console.log(node)
-            //console.log(pos)
 
             var newAttrs = Object.assign({}, node.attrs);
-            var src = payload.src;
-            var alt = payload.alt;
-            var title = payload.title;
             var width = payload.width;
-            var height = payload.height; // heightの追加
             var link = payload.link;
-            var linkMark;
-
-            if (src !== undefined) {
-                newAttrs.src = src;
-            }
-            if (alt !== undefined) {
-                newAttrs.alt = alt;
-            }
-            if (title !== undefined) {
-                newAttrs.title = title;
-            }
-            if (width !== undefined) {
+            var linkMark = [];
+            // width が有効な場合のみ新しい width を設定
+            if (width && !isNaN(width)) {
                 newAttrs.width = width;
             }
-            if (height !== undefined) { // heightの更新
-                newAttrs.height = height;
-            }
-            if (link !== undefined) {
-                newAttrs.link = link;
-            }
-
+            newAttrs.link = link;
             if (link) {
                 linkMark = schema.marks.link.create({ href: link });
             }
-            //console.log(linkMark)
             dispatch && dispatch(state.tr.setNodeMarkup(pos, undefined, newAttrs, linkMark).scrollIntoView());
 
             return true;
@@ -620,24 +597,19 @@ const extendedImageSchemaPlugin = mCommonmark.imageSchema.extendSchema((prevSche
             toMarkdown: {
                 ...prevSchema(ctx).toMarkdown,
                 runner: (state, node) => {
-                    var url = node.attrs.src;
-                    var width = node.attrs.width;
-                    if (width && width.endsWith('x')) {
-                        width = width.slice(0, -1);
-                    }                    
-                    
+                    var url = node.attrs.src;               
                 
                     if (node.attrs.width || node.attrs.height) {
                         const width = node.attrs.width ? `=${node.attrs.width}` : '';
                         const height = node.attrs.height ? `${node.attrs.height}` : '';
-                        url += ` ${width}${height}`;
+                        url += ` ${width}x${height}`;
                     }              
                     state.addNode('image', undefined, undefined, {
                         title: node.attrs.title,
                         url,
                         alt: node.attrs.alt,
                         link: node.attrs.link,
-                        width: width,
+                        width: node.attrs.width,
                         height: node.attrs.height,
                     });
                 },
@@ -692,7 +664,12 @@ const updatedInsertImageInputRule = $inputRule(function (ctx) {
 
         const attrs = { src, alt, title };
         
-        if (width) attrs.width = width;
+        if (width) {
+            if (width.endsWith('x')) {
+                width = width.slice(0, -1);
+            }
+            attrs.width = width;
+        }
         if (height) attrs.height = height;
 
         const { tr } = state;
