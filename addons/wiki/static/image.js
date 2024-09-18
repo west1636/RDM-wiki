@@ -65,7 +65,7 @@ export const extendedImageSchemaPlugin = mCommonmark.imageSchema.extendSchema((p
                   if (node.attrs.width || node.attrs.height) {
                       const width = node.attrs.width ? `=${node.attrs.width}` : '';
                       const height = node.attrs.height ? `${node.attrs.height}` : '';
-                      url += ` ${width}x${height}`;
+                      url += ` ${height ? `${width}x${height}` : width}`;
                   }              
                   state.addNode('image', undefined, undefined, {
                       title: node.attrs.title,
