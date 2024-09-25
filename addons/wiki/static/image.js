@@ -14,7 +14,6 @@ export const extendedImageSchemaPlugin = mCommonmark.imageSchema.extendSchema((p
               ...prevSchema(ctx).attrs,
               width: { default: '' },
               height: { default: '' },
-              link: { default: '' },
           },
           parseDOM: [
               ...prevSchema(ctx).parseDOM,
@@ -26,7 +25,6 @@ export const extendedImageSchemaPlugin = mCommonmark.imageSchema.extendSchema((p
                           ...prevSchema(ctx).parseDOM[0].getAttrs(dom),
                           width: dom.getAttribute('width') || '',
                           height: dom.getAttribute('height') || '',
-                          link: dom.getAttribute('link') || '',
                       };
                   },
               },
@@ -46,14 +44,12 @@ export const extendedImageSchemaPlugin = mCommonmark.imageSchema.extendSchema((p
                   }
                   const alt = node.alt;
                   const title = node.title;
-                  const link = node.link;
                   state.addNode(type, {
                       src: url,
                       alt,
                       title,
                       width,
-                      height,
-                      link
+                      height
                   });
               },
           },
@@ -71,7 +67,6 @@ export const extendedImageSchemaPlugin = mCommonmark.imageSchema.extendSchema((p
                       title: node.attrs.title,
                       url,
                       alt: node.attrs.alt,
-                      link: node.attrs.link,
                       width: node.attrs.width,
                       height: node.attrs.height,
                   });
@@ -81,31 +76,46 @@ export const extendedImageSchemaPlugin = mCommonmark.imageSchema.extendSchema((p
   };
 });
 
+export const extendedInsertImageCommand = $command('ExtendedIpdateImage', ctx => {
+    return function(payload) {
+        return function(state, dispatch) {
+            if (!dispatch)
+                return true
+      
+            const { src = '', alt = '', title = '', width = '' } = payload
+      
+            const node = mCommonmark.imageSchema.type(ctx).create({ src, alt, title, width })
+            if (!node)
+                return true
+      
+            dispatch(state.tr.replaceSelectionWith(node).scrollIntoView())
+            return true
+        };
+    };
+});
+
 export const extendedUpdateImageCommand = $command('ExtendedUpdateImage', ctx => {
     return function(payload) {
         return function(state, dispatch) {
-            var nodeWithPos = findSelectedNodeOfType(state.selection, mCommonmark.imageSchema.type(ctx));
-            if (!nodeWithPos) {
-                return false;
-            }
-            const schema = ctx.get(mCore.schemaCtx);
-            var node = nodeWithPos.node;
-            var pos = nodeWithPos.pos;
-
+            const nodeWithPos = findSelectedNodeOfType(state.selection, mCommonmark.imageSchema.type(ctx))
+            if (!nodeWithPos)
+                return false
+          
+            const { node, pos } = nodeWithPos
+          
             var newAttrs = Object.assign({}, node.attrs);
-            var width = payload.width;
-            var link = payload.link;
-            var linkMark = [];
-
-            if (width && !isNaN(width)) {
-                newAttrs.width = width;
-            }
-            newAttrs.link = link;
-            if (link) {
-                linkMark = schema.marks.link.create({ href: link });
-            }
-            dispatch && dispatch(state.tr.setNodeMarkup(pos, undefined, newAttrs, linkMark).scrollIntoView());
-            return true;
+            const { src, alt, title, width } = payload
+            if (src !== undefined)
+                newAttrs.src = src
+            if (alt !== undefined)
+                newAttrs.alt = alt
+            if (title !== undefined)
+                newAttrs.title = title
+            if (width !== undefined)
+                newAttrs.width = width
+          
+            dispatch?.(state.tr.setNodeMarkup(pos, undefined, newAttrs).scrollIntoView())
+            return true
         };
     };
 });

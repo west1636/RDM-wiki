@@ -23,7 +23,6 @@ import * as mBlock from '@milkdown/plugin-block';
 import * as mListener from '@milkdown/plugin-listener';
 import * as mPrism from '@milkdown/plugin-prism';
 import * as mIndent from '@milkdown/plugin-indent';
-import * as mTooltip from '@milkdown/plugin-tooltip';
 import * as mUtils from '@milkdown/utils';
 import * as mCollab from '@milkdown/plugin-collab';
 require('@milkdown/theme-nord/style.css');
@@ -49,7 +48,7 @@ const wsUrl = wsPrefix + window.contextVars.wiki.urls.y_websocket;
 import { NodeSelection } from '@milkdown/prose/state';
 import { underlineSchema, underlineInputRule, remarkUnderlineToMarkdown, remarkUnderlineFromMarkdown, toggleUnderlineCommand } from './underline.js';
 import { colortextSchema, colortextInputRule, remarkColortextToMarkdown, remarkColortextFromMarkdown, toggleColortextCommand } from './colortext.js';
-import { extendedImageSchemaPlugin, extendedUpdateImageCommand, updatedInsertImageInputRule } from './image.js';
+import { extendedImageSchemaPlugin, extendedInsertImageCommand, extendedUpdateImageCommand, updatedInsertImageInputRule } from './image.js';
 import { linkInputRuleCosutom } from './link.js';
 import { customHeadingIdGenerator } from './heading.js';
 
@@ -120,65 +119,6 @@ async function createMEditor(editor, vm, template) {
         });
         return ret
     };
-    const imageTooltip = mTooltip.tooltipFactory('IMAGE'); 
-    function imageTooltipPluginView(view) {
-        const content = document.createElement('div');
-        content.id = 'imageTooltip';
-        content.style.position = 'absolute';
-        content.style.backgroundColor = 'white';
-        content.style.border = '1px solid gray';
-        content.style.padding = '10px';
-        content.style.borderRadius = '5px';
-        content.style.boxShadow = '0 2px 5px rgba(0,0,0,0.2)';
-        content.style.width = '300px';
-        content.style.display = 'none';
-
-        content.innerHTML = `
-            <label style="display: flex; flex-direction: column; margin-bottom: 10px;">
-                <span>Size:</span>
-                <input id="imageWidth" type="text" style="margin-top: 5px; width: 100%;" value="">
-            </label>
-            <label style="display: flex; flex-direction: column;">
-                <span>Link URL:</span>
-                <input id="imageLink" type="text" style="margin-top: 5px; width: 100%;" value="">
-            </label>
-        `;
-
-        const provider = new mTooltip.TooltipProvider({
-            content: content,
-            shouldShow: (view) => {
-                const { state } = view;
-                const { selection } = state;
-
-                if (!(selection instanceof NodeSelection)) {
-                    content.style.display = 'none';
-                    return false;
-                }
-
-                const node = state.doc.nodeAt(selection.from);
-                if (node?.type.name === 'image') {
-                    const inputs = content.querySelectorAll('input');
-                    inputs[0].value = node.attrs.width || '';
-                    inputs[1].value = node.attrs.link || '';
-                    content.style.display = 'block';
-                    return true;
-                }
-
-                content.style.display = 'none';
-                return false;
-            }
-        });
-
-        return {
-            update: (updatedView, prevState) => {
-                provider.update(updatedView, prevState);
-            },
-            destroy: () => {
-                provider.destroy();
-                content.remove();
-            }
-        };
-    }
      
     const indexeddbProvider = wikiId ? new yIndexeddb.IndexeddbPersistence(wikiId, doc) : (console.error('Invalid wikiId: it must not be null, undefined, or empty'), null);
     const wsProvider = new yWebsocket.WebsocketProvider(wsUrl, docId, doc);
@@ -217,13 +157,10 @@ async function createMEditor(editor, vm, template) {
                 ...prev,
                 editable,
             }))
-            ctx.set(imageTooltip.key, {
-                view: imageTooltipPluginView
-            });
         })
         .config(mNord.nord)
         .use(mCommonmark.commonmark)
-        .use(extendedUpdateImageCommand)
+        .use([extendedInsertImageCommand, extendedUpdateImageCommand])
         .use([remarkUnderlineToMarkdown, remarkUnderlineFromMarkdown, underlineSchema, underlineInputRule, toggleUnderlineCommand])
         .use([remarkColortextToMarkdown, remarkColortextFromMarkdown, colortextSchema, colortextInputRule, toggleColortextCommand])
         .use([linkInputRuleCosutom, updatedInsertImageInputRule])
@@ -237,7 +174,6 @@ async function createMEditor(editor, vm, template) {
         .use(mPrism.prism)
         .use(mIndent.indent)
         .use(mCollab.collab)
-        .use(imageTooltip)
         .use([extendedImageSchemaPlugin])
         .create()
 
@@ -664,6 +600,31 @@ function ViewModel(options){
             mUtils.callCommand(mCommonmark.toggleStrongCommand.key)(ctx)
         })
     }
+    self.getLinkInfo = function() {
+        mEdit.action((ctx) => {
+            const view = ctx.get(mCore.editorViewCtx);
+            const state = view.state;
+            const { from, to } = state.selection;
+            const markType = ctx.get(mCore.schemaCtx).marks.link;
+
+            var linkHref = document.getElementById("linkSrc");
+            var linkTitle = document.getElementById("linkTitle");
+
+            linkHref.value = '';
+            linkTitle.value = '';
+    
+            state.doc.nodesBetween(from, to, (node, pos) => {
+                const linkMark = node.marks.find(mark => mark.type === markType);
+                if (linkMark) {
+                    const href = linkMark.attrs.href || '';
+                    const title = linkMark.attrs.title || '';
+                    
+                    linkHref.value = href;
+                    linkTitle.value = title;
+                }
+            });
+        });
+    }
     self.link = function() {
         var linkHref = document.getElementById("linkSrc");
         var linkTitle = document.getElementById("linkTitle");
@@ -699,17 +660,67 @@ function ViewModel(options){
             view.focus()
         })
     }
+    self.getImageInfo = function() {
+        mEdit.action((ctx) => {
+            const view = ctx.get(mCore.editorViewCtx);
+            const state = view.state;
+            const { from, to } = state.selection;
+            const imageType = ctx.get(mCore.schemaCtx).nodes.image;
+
+            const imageSrc = document.getElementById("imageSrc");
+            const imageAlt = document.getElementById("imageAlt");
+            const imageTitle = document.getElementById("imageTitle");
+            const imageWidth = document.getElementById("imageWidth");
+
+            imageSrc.value = '';
+            imageTitle.value = '';
+            imageAlt.value = '';
+            imageWidth.value = '';
+            
+            state.doc.nodesBetween(from, to, (node, pos) => {
+                if (node.type === imageType) {
+                    const src = node.attrs.src || '';
+                    const alt = node.attrs.alt || '';
+                    const title = node.attrs.title || '';
+                    const width = node.attrs.width || '';
+
+                    imageSrc.value = src;
+                    imageAlt.value = alt;
+                    imageTitle.value = title;
+                    imageWidth.value = width;
+                }
+            });
+        });
+    }
     self.image = function() {
         var imageSrc = document.getElementById("imageSrc");
         var imageTitle = document.getElementById("imageTitle");
         var imageAlt = document.getElementById("imageAlt");
+        var imageWidth = document.getElementById("imageWidth");
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
-            mUtils.callCommand(mCommonmark.insertImageCommand.key, {src: imageSrc.value, title: imageTitle.value, alt: imageAlt.value})(ctx)
+            const state = view.state;
+            const { from, to } = state.selection;
+            const imageType = ctx.get(mCore.schemaCtx).nodes.image;
+            
+            var hasImage = false;
+
+            state.doc.nodesBetween(from, to, (node) => {
+                if (node.type === imageType) {
+                    hasImage = true;
+                }
+            });
+
+            if (hasImage) {
+                mUtils.callCommand(extendedUpdateImageCommand.key, {src: imageSrc.value, title: imageTitle.value, alt: imageAlt.value, width: imageWidth.value})(ctx)
+            } else {
+                mUtils.callCommand(extendedInsertImageCommand.key, {src: imageSrc.value, title: imageTitle.value, alt: imageAlt.value, width: imageWidth.value})(ctx)
+            }
             $('.modal').modal('hide');
             imageSrc.value = '';
             imageTitle.value = '';
             imageAlt.value = '';
+            imageWidth.value = '';
             view.focus()
         })
     }
@@ -1003,6 +1014,27 @@ function ViewModel(options){
             var message = resp.message;
         });
     }
+    self.imageSrcInput = ko.observable('');
+    self.imageWidthInput = ko.observable('');
+    self.canAddImage = ko.observable(false);
+    self.showSizeError = ko.observable(false);
+
+    self.validateInputs = function () {
+        const src = self.imageSrcInput().trim();
+        const width = self.imageWidthInput().trim();
+    
+        const sizePattern = /^(\d+|\d+%)$/;
+
+        const isValidSrc = src !== '';
+        const isValidSize = width === '' || sizePattern.test(width);
+
+        self.showSizeError(!isValidSize && width !== '');
+        self.canAddImage(isValidSrc && isValidSize);     
+    };
+
+    self.imageSrcInput.subscribe(self.validateInputs);
+    self.imageWidthInput.subscribe(self.validateInputs);
+    self.validateInputs();
 }
 
 /**
