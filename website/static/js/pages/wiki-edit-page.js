@@ -46,6 +46,7 @@ var wikiPageOptions = {
 };
 
 var wikiPage = new WikiPageMilkdown('#wikiPageContext', wikiPageOptions);
+var wikiToggleImage = new WikiPageMilkdown('#toggleImage', wikiPageOptions);
 
 
 // Edit wiki page name
