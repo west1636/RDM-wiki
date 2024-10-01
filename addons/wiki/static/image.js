@@ -32,9 +32,8 @@ export const extendedImageSchemaPlugin = mCommonmark.imageSchema.extendSchema((p
           parseMarkdown: {
               ...prevSchema(ctx).parseMarkdown,
               runner: (state, node, type) => {
-                  console.log('node:', node)
                   const [url, size] = node.url.split(/\s+(.+)$/);
-                  const sizeMatch = size && size.match(/^=([\d]+)(%?)x?([\d]*)(%?)$/);
+                  const sizeMatch = size && size.match(/^=([\d]+%?)x?([\d]*%?)$/);
                   var width = '';
                   var height = '';
 
@@ -56,8 +55,8 @@ export const extendedImageSchemaPlugin = mCommonmark.imageSchema.extendSchema((p
           toMarkdown: {
               ...prevSchema(ctx).toMarkdown,
               runner: (state, node) => {
-                  var url = node.attrs.src;               
-              
+                  var url = node.attrs.src;   
+            
                   if (node.attrs.width || node.attrs.height) {
                       const width = node.attrs.width ? `=${node.attrs.width}` : '';
                       const height = node.attrs.height ? `${node.attrs.height}` : '';
@@ -131,10 +130,11 @@ export const updatedInsertImageInputRule = $inputRule(function (ctx) {
         const attrs = { src, alt, title };
         
         if (width) {
+            var attrWidth = '';
             if (width.endsWith('x')) {
-                width = width.slice(0, -1);
+                attrWidth = width.slice(0, -1);
             }
-            attrs.width = width;
+            attrs.width = attrWidth;
         }
         if (height) attrs.height = height;
 
