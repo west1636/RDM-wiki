@@ -688,6 +688,9 @@ function ViewModel(options){
                     imageAlt.value = alt;
                     imageTitle.value = title;
                     imageWidth.value = width;
+                    if (imageSrc.value !== '') {
+                        document.getElementById("addImage").disabled = false;
+                    }
                 }
             });
         });
@@ -1025,11 +1028,11 @@ function ViewModel(options){
     
         const sizePattern = /^(\d+|\d+%)$/;
 
-        const isValidSrc = src !== '';
+        const isValidSrc = document.getElementById("imageSrc").value !== '';
         const isValidSize = width === '' || sizePattern.test(width);
 
         self.showSizeError(!isValidSize && width !== '');
-        self.canAddImage(isValidSrc && isValidSize);     
+        document.getElementById("addImage").disabled = !(isValidSrc && isValidSize);
     };
 
     self.imageSrcInput.subscribe(self.validateInputs);
