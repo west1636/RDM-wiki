@@ -130,11 +130,12 @@ export const updatedInsertImageInputRule = $inputRule(function (ctx) {
         const attrs = { src, alt, title };
         
         if (width) {
-            var attrWidth = '';
+            var attrWidth = width;
             if (width.endsWith('x')) {
                 attrWidth = width.slice(0, -1);
+            } else {
+                attrs.width = attrWidth;
             }
-            attrs.width = attrWidth;
         }
         if (height) attrs.height = height;
 
