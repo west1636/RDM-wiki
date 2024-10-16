@@ -802,7 +802,7 @@ function ViewModel(options){
             const parser = ctx.get(mCore.parserCtx);
     
             const nodes = view.state.doc.content.content;
-            var group = []
+
             var mokujiInfo = {}
             const mokuji = nodes
                 .filter(node => node.type.name === 'heading' && node.content && node.content.content[0])
@@ -812,11 +812,12 @@ function ViewModel(options){
                     const headingLevel = node.attrs.level;
                     mokujiInfo = { text: headingText, id: headingId, level: headingLevel }
 
-                    const listPrefix = '  '.repeat(headingLevel - 1) + '* ';
+                    const listPrefix = '* '.repeat(headingLevel);
                     return listPrefix + '[' + headingText + ']' + '(#' + headingId + ')';
                 });
-    
+            
             const markdownText = mokuji.join('\n');
+            console.log(markdownText)
             const listNode = parser(markdownText);
             var pos = state.selection.from;
             var tr = state.tr;
