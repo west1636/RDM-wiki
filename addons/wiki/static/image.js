@@ -2,7 +2,7 @@
 
 import { $inputRule, $command} from '@milkdown/utils';
 import { InputRule } from '@milkdown/prose/inputrules';
-import { findSelectedNodeOfType } from '@milkdown/prose'
+import { findSelectedNodeOfType } from '@milkdown/prose';
 import * as mCommonmark from '@milkdown/preset-commonmark';
 
 export const extendedImageSchemaPlugin = mCommonmark.imageSchema.extendSchema((prevSchema) => {
@@ -78,16 +78,16 @@ export const extendedInsertImageCommand = $command('ExtendedIpdateImage', ctx =>
     return function(payload) {
         return function(state, dispatch) {
             if (!dispatch)
-                return true
+                return true;
       
-            const { src = '', alt = '', title = '', width = '' } = payload
+            const { src = '', alt = '', title = '', width = '' } = payload;
       
-            const node = mCommonmark.imageSchema.type(ctx).create({ src, alt, title, width })
+            const node = mCommonmark.imageSchema.type(ctx).create({ src, alt, title, width });
             if (!node)
-                return true
+                return true;
       
-            dispatch(state.tr.replaceSelectionWith(node).scrollIntoView())
-            return true
+            dispatch(state.tr.replaceSelectionWith(node).scrollIntoView());
+            return true;
         };
     };
 });
@@ -95,25 +95,25 @@ export const extendedInsertImageCommand = $command('ExtendedIpdateImage', ctx =>
 export const extendedUpdateImageCommand = $command('ExtendedUpdateImage', ctx => {
     return function(payload) {
         return function(state, dispatch) {
-            const nodeWithPos = findSelectedNodeOfType(state.selection, mCommonmark.imageSchema.type(ctx))
+            const nodeWithPos = findSelectedNodeOfType(state.selection, mCommonmark.imageSchema.type(ctx));
             if (!nodeWithPos)
-                return false
+                return false;
           
-            const { node, pos } = nodeWithPos
+            const { node, pos } = nodeWithPos;
           
             var newAttrs = Object.assign({}, node.attrs);
-            const { src, alt, title, width } = payload
+            const { src, alt, title, width } = payload;
             if (src !== undefined)
-                newAttrs.src = src
+                newAttrs.src = src;
             if (alt !== undefined)
-                newAttrs.alt = alt
+                newAttrs.alt = alt;
             if (title !== undefined)
-                newAttrs.title = title
+                newAttrs.title = title;
             if (width !== undefined)
-                newAttrs.width = width
+                newAttrs.width = width;
           
-            dispatch?.(state.tr.setNodeMarkup(pos, undefined, newAttrs).scrollIntoView())
-            return true
+            dispatch?.(state.tr.setNodeMarkup(pos, undefined, newAttrs).scrollIntoView());
+            return true;
         };
     };
 });

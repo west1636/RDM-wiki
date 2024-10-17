@@ -3,7 +3,7 @@
 import { $inputRule, $command, $markSchema, $remark } from '@milkdown/utils';
 import { markRule } from '@milkdown/prose';
 import { toggleMark } from '@milkdown/prose/commands';
-import { flatMap, isLiteral } from './utils.js'
+import { flatMap, isLiteral } from './utils.js';
 
 export const colortextSchema = $markSchema('colortext', function () {
   return {
@@ -23,15 +23,15 @@ export const colortextSchema = $markSchema('colortext', function () {
       parseMarkdown: {
           match: node => node.type === 'colortext',
           runner: (state, node, markType) => {
-              state.openMark(markType, { color: node.color })
-              state.next(node.children)
-              state.closeMark(markType)
+              state.openMark(markType, { color: node.color });
+              state.next(node.children);
+              state.closeMark(markType);
           }
       },
       toMarkdown: {
           match: mark => mark.type.name === 'colortext',
           runner: (state, mark) => {
-              state.withMark(mark, 'colortext', undefined, { color: mark.attrs.color })
+              state.withMark(mark, 'colortext', undefined, { color: mark.attrs.color });
           }
       }
   };
@@ -43,16 +43,16 @@ export const colortextInputRule = $inputRule(function (ctx) {
   });
 });
 
-export const remarkColortextToMarkdown = $remark('remarkColortextToMarkdown', function () { return colortextToMarkdownPlugin });
+export const remarkColortextToMarkdown = $remark('remarkColortextToMarkdown', function () { return colortextToMarkdownPlugin; });
 
 export const remarkColortextFromMarkdown = $remark('remarkColortextFromMarkdown', function () { return colortextFromMarkdownPlugin; });
 
 export const toggleColortextCommand = $command('ToggleColortext', ctx => {
   return function(color) {
       if (!color)
-          return
+          return;
       var attrs = { color: color };
-      return toggleMark(colortextSchema.type(ctx), attrs)
+      return toggleMark(colortextSchema.type(ctx), attrs);
   };
 });
 
@@ -149,7 +149,7 @@ const colortextFromMarkdownPlugin = function colortextFromMarkdownPlugin() {
       });
   }
   return transformer;
-}
+};
 
 const handleColortext = function handleColortext(node, _, state, info) {
   const tracker = state.createTracker(info);
@@ -179,7 +179,7 @@ const colortextToMarkdown = function colortextToMarkdown() {
     handlers: {
       colortext: handleColortext
     }
-  }
+  };
 };
 
 var colortextToMarkdownPlugin = function colortextToMarkdownPlugin() {

@@ -13,23 +13,23 @@ export function flatMap(ast, fn) {
 
     function transform(node, index, parent) {
       if (isParent(node)) {
-        const out = []
+        const out = [];
         for (var i = 0, n = node.children.length; i < n; i++) {
-          const nthChild = node.children[i]
+          const nthChild = node.children[i];
           if (nthChild) {
-            const xs = transform(nthChild, i, node)
+            const xs = transform(nthChild, i, node);
             if (xs) {
               for (var j = 0, m = xs.length; j < m; j++) {
-                const item = xs[j]
+                const item = xs[j];
                 if (item)
-                  out.push(item)
+                  out.push(item);
               }
             }
           }
         }
-        node.children = out
+        node.children = out;
       }
   
-      return fn(node, index, parent)
+      return fn(node, index, parent);
     }
   }

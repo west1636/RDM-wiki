@@ -2,7 +2,7 @@
 import { $inputRule, $command, $markSchema, $remark} from '@milkdown/utils';
 import { markRule } from '@milkdown/prose';
 import { toggleMark } from '@milkdown/prose/commands';
-import { flatMap, isLiteral } from './utils.js'
+import { flatMap, isLiteral } from './utils.js';
 
 export const underlineSchema = $markSchema('underline', function () {
     return {
@@ -14,15 +14,15 @@ export const underlineSchema = $markSchema('underline', function () {
         parseMarkdown: {
             match: node => node.type === 'underline',
             runner: (state, node, markType) => {
-                state.openMark(markType)
-                state.next(node.children)
-                state.closeMark(markType)
+                state.openMark(markType);
+                state.next(node.children);
+                state.closeMark(markType);
             }
         },
         toMarkdown: {
             match: mark => mark.type.name === 'underline',
             runner: (state, mark) => {
-                state.withMark(mark, 'underline')
+                state.withMark(mark, 'underline');
             }
         }
     };
@@ -32,7 +32,7 @@ export const underlineInputRule = $inputRule(function (ctx) {
     return markRule(/<u>(.*?)<\/u>/, underlineSchema.type(ctx));
 });
 
-export const remarkUnderlineToMarkdown = $remark('remarkUnderlineToMarkdown', function () { return underlineToMarkdownPlugin });
+export const remarkUnderlineToMarkdown = $remark('remarkUnderlineToMarkdown', function () { return underlineToMarkdownPlugin; });
 
 export const remarkUnderlineFromMarkdown = $remark('remarkUnderlineFromMarkdown', function () { return underlineFromMarkdownPlugin; });
 
@@ -130,7 +130,7 @@ const underlineFromMarkdownPlugin = function underlineFromMarkdownPlugin() {
       });
     }
     return transformer;
-}
+};
 
 const constructsWithoutUnderline = [
     'autolink',
@@ -139,7 +139,7 @@ const constructsWithoutUnderline = [
     'reference',
     'titleQuote',
     'titleApostrophe'
-  ]
+  ];
   
 
 const underlineToMarkdown = function underlineToMarkdown() {
@@ -157,21 +157,21 @@ const underlineToMarkdown = function underlineToMarkdown() {
         }
       ],
       handlers: {underline: handleUnderline}
-    }
-  }
+    };
+  };
   
 
 const handleUnderline = function handleUnderline(node, _, state, info) {
-    const tracker = state.createTracker(info)
-    const exit = state.enter('underline')
-    let value = tracker.move('\\<u>')
+    const tracker = state.createTracker(info);
+    const exit = state.enter('underline');
+    let value = tracker.move('\\<u>');
     value += state.containerPhrasing(node, {
       ...tracker.current()
-    })
-    value += tracker.move('\\</u>')
-    exit()
-    return value
-}
+    });
+    value += tracker.move('\\</u>');
+    exit();
+    return value;
+};
 
 var underlineToMarkdownPlugin = function underlineToMarkdownPlugin() {
     var self = this;

@@ -25,7 +25,7 @@ import * as mCollab from '@milkdown/plugin-collab';
 require('@milkdown/theme-nord/style.css');
 require('@milkdown/prose/view/style/prosemirror.css');
 require('@milkdown/prose/tables/style/tables.css');
-require('katex/dist/katex.min.css')
+require('katex/dist/katex.min.css');
 
 var THROTTLE = 500;
 var headNum = 1;
@@ -53,18 +53,18 @@ async function createMView(editor, markdown) {
     if (editor && editor.destroy) {
         editor.destroy();
     }
-    var viewonly = true
+    var viewonly = true;
     const editable = () => !viewonly;
     mView = await mCore.Editor
         .make()
         .config(ctx => {
-            ctx.set(mCore.rootCtx, '#mView')
+            ctx.set(mCore.rootCtx, '#mView');
             ctx.set(mCore.defaultValueCtx, markdown);
-            ctx.update(mCommonmark.headingIdGenerator.key, () => customHeadingIdGenerator)
+            ctx.update(mCommonmark.headingIdGenerator.key, () => customHeadingIdGenerator);
             ctx.update(mCore.editorViewOptionsCtx, (prev) => ({
                 ...prev,
                 editable,
-            }))
+            }));
         })
         .config(mNord.nord)
         .use(mCommonmark.commonmark)
@@ -82,14 +82,14 @@ async function createMView(editor, markdown) {
         .use(mIndent.indent)
         .use(mCollab.collab)
         .use([extendedImageSchemaPlugin])
-        .create()
+        .create();
 }
 
 async function createMEditor(editor, vm, template) {
     if (editor && editor.destroy) {
         editor.destroy();
     }
-    const enableHtmlFileUploader = false
+    const enableHtmlFileUploader = false;
     const uploader = async (files, schema) => {
         // You can handle whatever the file can be upload to GRDM.
         var renderInfo = await localFileHandler(files);
@@ -101,20 +101,20 @@ async function createMEditor(editor, vm, template) {
           }
           attachments.push(file);
         }
-        const data = []
+        const data = [];
         for(let i = 0; i < renderInfo.length; i++){
             data.push({alt: renderInfo[i]['name'], src: renderInfo[i]['url']});
         }
         const ret = data.map(({ alt, src }) => {
             var ext = getExtension(alt);
             if(!(validImgExtensions.includes(ext))){
-                var attrs={ title: alt, href: src }
-                    return schema.nodes.paragraph.createAndFill({}, schema.text(attrs.title, [schema.marks.link.create(attrs)]))
+                var attrs={ title: alt, href: src };
+                    return schema.nodes.paragraph.createAndFill({}, schema.text(attrs.title, [schema.marks.link.create(attrs)]));
             }else{
-                return schema.nodes.image.createAndFill({ src, alt })
+                return schema.nodes.image.createAndFill({ src, alt });
             }
         });
-        return ret
+        return ret;
     };
      
     const indexeddbProvider = wikiId ? new yIndexeddb.IndexeddbPersistence(wikiId, doc) : (console.error('Invalid wikiId: it must not be null, undefined, or empty'), null);
@@ -123,20 +123,20 @@ async function createMEditor(editor, vm, template) {
     mEdit = await mCore.Editor
         .make()
         .config(ctx => {
-            ctx.set(mCore.rootCtx, '#mEditor')
-            ctx.update(mCommonmark.headingIdGenerator.key, () => customHeadingIdGenerator)
+            ctx.set(mCore.rootCtx, '#mEditor');
+            ctx.update(mCommonmark.headingIdGenerator.key, () => customHeadingIdGenerator);
             ctx.update(mUpload.uploadConfig.key, (prev) => ({
                 ...prev,
                 uploader,
                 enableHtmlFileUploader,
-            }))
+            }));
             const debouncedMarkdownUpdated = $osf.debounce(async (ctx, markdown, prevMarkdown) => {
                 const compareWidgetElement = document.getElementById("compareWidget"); 
                 if (compareWidgetElement && compareWidgetElement.style.display !== 'none') {
                     vm.viewVM.displaySource(markdown);
                 } 
                 const view = ctx.get(mCore.editorViewCtx);
-                const state = view.state
+                const state = view.state;
                 const undoElement = document.getElementById("undoWiki");
                 // set undo able
                 if(state["y-undo$"] !== undefined && (state["y-undo$"].undoManager.undoStack).length !== 0){
@@ -150,7 +150,7 @@ async function createMEditor(editor, vm, template) {
             ctx.update(mCore.editorViewOptionsCtx, (prev) => ({
                 ...prev,
                 editable,
-            }))
+            }));
         })
         .config(mNord.nord)
         .use(mCommonmark.commonmark)
@@ -169,7 +169,7 @@ async function createMEditor(editor, vm, template) {
         .use(mIndent.indent)
         .use(mCollab.collab)
         .use([extendedImageSchemaPlugin])
-        .create()
+        .create();
 
     mEdit.action((ctx) => {
         const collabService = ctx.get(mCollab.collabServiceCtx);
@@ -179,15 +179,15 @@ async function createMEditor(editor, vm, template) {
                 vm.updateStatus();
             }
             vm.throttledUpdateStatus();
-        })
+        });
         wsProvider.on('connection-error', WSClosedEvent => {
             vm.status('disconnected');
             vm.updateStatus();
             vm.throttledUpdateStatus();
-        })
+        });
         const fullname = window.contextVars.currentUser.fullname;
-        wsProvider.awareness.setLocalStateField('user', { name: fullname, color: '#ffb61e'})
-        collabService.bindDoc(doc).setAwareness(wsProvider.awareness)
+        wsProvider.awareness.setLocalStateField('user', { name: fullname, color: '#ffb61e'});
+        collabService.bindDoc(doc).setAwareness(wsProvider.awareness);
         wsProvider.once('synced', async (isSynced) => {
             if (isSynced) {
                 collabService
@@ -195,19 +195,19 @@ async function createMEditor(editor, vm, template) {
                     // if no remote node content, apply current to displaySource
                     if (remoteNode.textContent.length === 0) {
                         vm.viewVM.displaySource(template);
-                        return true
+                        return true;
                     } else {
                         const view = ctx.get(mCore.editorViewCtx);
-                        const serializer = ctx.get(mCore.serializerCtx)
+                        const serializer = ctx.get(mCore.serializerCtx);
                         const toMarkdown = serializer(remoteNode);
                         vm.viewVM.displaySource(toMarkdown);
-                        return false
+                        return false;
                     }
                 })
                 .connect();
             }
         });
-    })
+    });
 
 }
 
@@ -239,9 +239,9 @@ function ViewWidget(visible, version, viewText, rendered, contentURL, allowMathj
                 if (mEdit !== undefined) {
                     mEdit.action((ctx) => {
                         const view = ctx.get(mCore.editorViewCtx);
-                        const serializer = ctx.get(mCore.serializerCtx)
-                        toMarkdown = serializer(view.state.doc)
-                    })
+                        const serializer = ctx.get(mCore.serializerCtx);
+                        toMarkdown = serializer(view.state.doc);
+                    });
                 }
                 self.displaySource(toMarkdown);
                 if (document.getElementById("editWysiwyg").style.display === "none"){
@@ -271,7 +271,7 @@ function ViewWidget(visible, version, viewText, rendered, contentURL, allowMathj
                 request.done(function (resp) {
                     if(self.visible()) {
                         if (resp.wiki_content){
-                            var rawContent = resp.wiki_content
+                            var rawContent = resp.wiki_content;
                         } else if(window.contextVars.currentUser.canEdit) {
                             var rawContent = _('*Add important information, links, or images here to describe your project.*');
                         } else {
@@ -519,7 +519,7 @@ function ViewModel(options){
         var rawContent = '';
         request.done(function (resp) {
             if (resp.wiki_content){
-                rawContent = resp.wiki_content
+                rawContent = resp.wiki_content;
             }
             if ((self.viewVersion() === 'preview' )) {
                 mEdit = createMEditor(mEdit, self, rawContent);
@@ -544,9 +544,9 @@ function ViewModel(options){
                 var toMarkdown = '';
                 mEdit.action((ctx) => {
                     const view = ctx.get(mCore.editorViewCtx);
-                    const serializer = ctx.get(mCore.serializerCtx)
-                    toMarkdown = serializer(view.state.doc)
-                })
+                    const serializer = ctx.get(mCore.serializerCtx);
+                    toMarkdown = serializer(view.state.doc);
+                });
                 self.viewVM.displaySource(toMarkdown);
             }
         }
@@ -560,38 +560,38 @@ function ViewModel(options){
     self.undoWiki = function() {
         mEdit.action((ctx) => {
             var view = ctx.get(mCore.editorViewCtx);
-            var state = view.state
-            view.focus()
-            yProseMirror.undo(state)
+            var state = view.state;
+            view.focus();
+            yProseMirror.undo(state);
             if((state["y-undo$"].undoManager.undoStack).length === 0){
                 document.getElementById("undoWiki").disabled = true;
                 document.getElementById("msoUndo").style.opacity = 0.3;
             }
             document.getElementById("redoWiki").disabled = false;
             document.getElementById("msoRedo").style.opacity = 1;
-        })
-    }
+        });
+    };
     self.redoWiki = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
-            const state = view.state
-            view.focus()
-            yProseMirror.redo(state)
+            const state = view.state;
+            view.focus();
+            yProseMirror.redo(state);
             if((state["y-undo$"].undoManager.redoStack).length === 0){
                 document.getElementById("redoWiki").disabled = true;
                 document.getElementById("msoRedo").style.opacity = 0.3;
             }
             document.getElementById("undoWiki").disabled = false;
             document.getElementById("msoUndo").style.opacity = 1;
-        })
-    }
+        });
+    };
     self.strong = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
-            mUtils.callCommand(mCommonmark.toggleStrongCommand.key)(ctx)
-        })
-    }
+            view.focus();
+            mUtils.callCommand(mCommonmark.toggleStrongCommand.key)(ctx);
+        });
+    };
     self.getLinkInfo = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
@@ -616,7 +616,7 @@ function ViewModel(options){
                 }
             });
         });
-    }
+    };
     self.link = function() {
         var linkHref = document.getElementById("linkSrc");
         var linkTitle = document.getElementById("linkTitle");
@@ -649,9 +649,9 @@ function ViewModel(options){
             $('.modal').modal('hide');
             linkHref.value = '';
             linkTitle.value = '';
-            view.focus()
-        })
-    }
+            view.focus();
+        });
+    };
     self.getImageInfo = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
@@ -686,7 +686,7 @@ function ViewModel(options){
                 }
             });
         });
-    }
+    };
     self.image = function() {
         var imageSrc = document.getElementById("imageSrc");
         var imageTitle = document.getElementById("imageTitle");
@@ -707,84 +707,84 @@ function ViewModel(options){
             });
 
             if (hasImage) {
-                mUtils.callCommand(extendedUpdateImageCommand.key, {src: imageSrc.value, title: imageTitle.value, alt: imageAlt.value, width: imageWidth.value})(ctx)
+                mUtils.callCommand(extendedUpdateImageCommand.key, {src: imageSrc.value, title: imageTitle.value, alt: imageAlt.value, width: imageWidth.value})(ctx);
             } else {
-                mUtils.callCommand(extendedInsertImageCommand.key, {src: imageSrc.value, title: imageTitle.value, alt: imageAlt.value, width: imageWidth.value})(ctx)
+                mUtils.callCommand(extendedInsertImageCommand.key, {src: imageSrc.value, title: imageTitle.value, alt: imageAlt.value, width: imageWidth.value})(ctx);
             }
             $('.modal').modal('hide');
             imageSrc.value = '';
             imageTitle.value = '';
             imageAlt.value = '';
             imageWidth.value = '';
-            view.focus()
-        })
-    }
+            view.focus();
+        });
+    };
     self.changeImage = function() {
         var imageWidth = document.getElementById("imageWidth");
         var imageLink = document.getElementById("imageLink");
         mEdit.action((ctx) => {
-            mUtils.callCommand(extendedUpdateImageCommand.key, {width: imageWidth.value, link: imageLink.value})(ctx)
-        })
-    }
+            mUtils.callCommand(extendedUpdateImageCommand.key, {width: imageWidth.value, link: imageLink.value})(ctx);
+        });
+    };
     self.italic = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
-            mUtils.callCommand(mCommonmark.toggleEmphasisCommand.key)(ctx)
-        })
-    }
+            view.focus();
+            mUtils.callCommand(mCommonmark.toggleEmphasisCommand.key)(ctx);
+        });
+    };
     self.quote = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
-            return mUtils.callCommand(mCommonmark.wrapInBlockquoteCommand.key)(ctx)
-        })
-    }
+            view.focus();
+            return mUtils.callCommand(mCommonmark.wrapInBlockquoteCommand.key)(ctx);
+        });
+    };
     self.code = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
-            return mUtils.callCommand(mCommonmark.createCodeBlockCommand.key)(ctx)
-        })
-    }
+            view.focus();
+            return mUtils.callCommand(mCommonmark.createCodeBlockCommand.key)(ctx);
+        });
+    };
     self.listNumbered = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
-            return mUtils.callCommand(mCommonmark.wrapInOrderedListCommand.key)(ctx)
-        })
-    }
+            view.focus();
+            return mUtils.callCommand(mCommonmark.wrapInOrderedListCommand.key)(ctx);
+        });
+    };
     self.listBulleted = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
-            return mUtils.callCommand(mCommonmark.wrapInBulletListCommand.key)(ctx)
-        })
-    }
+            view.focus();
+            return mUtils.callCommand(mCommonmark.wrapInBulletListCommand.key)(ctx);
+        });
+    };
     self.head = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
-            mUtils.callCommand(mCommonmark.wrapInHeadingCommand.key, headNum)(ctx)
+            view.focus();
+            mUtils.callCommand(mCommonmark.wrapInHeadingCommand.key, headNum)(ctx);
             headNum === 6 ? headNum = 1 : headNum =  headNum + 1;
-        })
-    }
+        });
+    };
 
     self.horizontal = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
-            return mUtils.callCommand(mCommonmark.insertHrCommand.key)(ctx)
-        })
-    }
+            view.focus();
+            return mUtils.callCommand(mCommonmark.insertHrCommand.key)(ctx);
+        });
+    };
 
     self.underline = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
-            return mUtils.callCommand(toggleUnderlineCommand.key)(ctx)
-        })
-    }
+            view.focus();
+            return mUtils.callCommand(toggleUnderlineCommand.key)(ctx);
+        });
+    };
 
     self.mokujimacro = function() {
         mEdit.action((ctx) => {
@@ -806,7 +806,7 @@ function ViewModel(options){
                 });
             
             const markdownText = mokuji.join('\n');
-            console.log(markdownText)
+            console.log(markdownText);
             const listNode = parser(markdownText);
             var pos = state.selection.from;
             var tr = state.tr;
@@ -820,7 +820,7 @@ function ViewModel(options){
     self.colortext = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
+            view.focus();
             var state = view.state;
             var ranges = state.selection.ranges;
             var colortextMarkExists = ranges.some(r => {
@@ -832,20 +832,20 @@ function ViewModel(options){
             
             if (colortextMarkExists) {
                 if (self.color() !== '#000000') {
-                    mUtils.callCommand(toggleColortextCommand.key, self.color())(ctx)
+                    mUtils.callCommand(toggleColortextCommand.key, self.color())(ctx);
                 }
             }
-            return mUtils.callCommand(toggleColortextCommand.key, self.color())(ctx)
-        })
-    }
+            return mUtils.callCommand(toggleColortextCommand.key, self.color())(ctx);
+        });
+    };
 
     self.strikethrough = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
-            return mUtils.callCommand(mGfm.toggleStrikethroughCommand.key)(ctx)
-        })
-    }
+            view.focus();
+            return mUtils.callCommand(mGfm.toggleStrikethroughCommand.key)(ctx);
+        });
+    };
 
     self.table = function() {
         var cssArrow = document.getElementById("arrowDropDown").style.display;
@@ -855,60 +855,60 @@ function ViewModel(options){
         } else {
             mEdit.action((ctx) => {
                 const view = ctx.get(mCore.editorViewCtx);
-                view.focus()
-                return mUtils.callCommand(mGfm.insertTableCommand.key)(ctx)
-            })
+                view.focus();
+                return mUtils.callCommand(mGfm.insertTableCommand.key)(ctx);
+            });
         }
-    }
+    };
 
     self.addColumnBef = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
-            return mUtils.callCommand(mGfm.addColBeforeCommand.key)(ctx)
-        })
-    }
+            view.focus();
+            return mUtils.callCommand(mGfm.addColBeforeCommand.key)(ctx);
+        });
+    };
 
     self.addColumnAft = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
-            return mUtils.callCommand(mGfm.addColAfterCommand.key)(ctx)
-        })
-    }
+            view.focus();
+            return mUtils.callCommand(mGfm.addColAfterCommand.key)(ctx);
+        });
+    };
 
     self.addRowBef = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
-            return mUtils.callCommand(mGfm.addRowBeforeCommand.key)(ctx)
-        })
-    }
+            view.focus();
+            return mUtils.callCommand(mGfm.addRowBeforeCommand.key)(ctx);
+        });
+    };
 
     self.addRowAft = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
-            return mUtils.callCommand(mGfm.addRowAfterCommand.key)(ctx)
-        })
-    }
+            view.focus();
+            return mUtils.callCommand(mGfm.addRowAfterCommand.key)(ctx);
+        });
+    };
 
     self.deleteSelectedCell = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
-            return mUtils.callCommand(mGfm.deleteSelectedCellsCommand.key)(ctx)
-        })
-    }
+            view.focus();
+            return mUtils.callCommand(mGfm.deleteSelectedCellsCommand.key)(ctx);
+        });
+    };
 
     self.deleteTable = function() {
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
-            view.focus()
-            mUtils.callCommand(mGfm.selectTableCommand.key)(ctx)
-            mUtils.callCommand(mGfm.deleteSelectedCellsCommand.key)(ctx)
-        })
-    }
+            view.focus();
+            mUtils.callCommand(mGfm.selectTableCommand.key)(ctx);
+            mUtils.callCommand(mGfm.deleteSelectedCellsCommand.key)(ctx);
+        });
+    };
 
     var addLink = document.querySelector('#addLink');
     addLink.onclick = self.link.bind(self);
@@ -947,8 +947,8 @@ function ViewModel(options){
         if (event.target.closest('#mEditor')) {
             mEdit.action((ctx) => {
                 const view = ctx.get(mCore.editorViewCtx);
-                view.focus()
-            })
+                view.focus();
+            });
         }
         if (event.target.closest('.tableWrapper')) {
             document.getElementById("arrowDropDown").style.display = "";
@@ -969,29 +969,29 @@ function ViewModel(options){
             var rawContent = '';
             request.done(function (resp) {
                 if (resp.wiki_content){
-                    rawContent = resp.wiki_content
+                    rawContent = resp.wiki_content;
                 }
                 mEdit = createMEditor(mEdit, self, rawContent);
             });
         }
         self.viewVersion('preview');
       }
-    }
+    };
 
     self.editModeOff = function() {
         readonly = true;
         document.getElementById("mMenuBar").style.display = "none";
         document.getElementById("mEditorFooter").style.display = "none";
         document.getElementById("editWysiwyg").style.display = "";
-    }
+    };
 
     self.submitMText = function() {
         var toMarkdown = '';
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
-            const serializer = ctx.get(mCore.serializerCtx)
-            toMarkdown = serializer(view.state.doc)
-        })
+            const serializer = ctx.get(mCore.serializerCtx);
+            toMarkdown = serializer(view.state.doc);
+        });
         var pageUrl = window.contextVars.wiki.urls.page;
         $.ajax({
             url:pageUrl,
@@ -999,14 +999,14 @@ function ViewModel(options){
             data: JSON.stringify({markdown: toMarkdown}),
             contentType: 'application/json; charset=utf-8',
         }).done(function (resp) {
-            const reloadUrl = (location.href).replace(location.search, '')
+            const reloadUrl = (location.href).replace(location.search, '');
             window.location.assign(reloadUrl);
         }).fail(function(xhr) {
             var resp = JSON.parse(xhr.responseText);
             var message = resp.message;
-            alert(message)
+            alert(message);
         });
-    }
+    };
     self.imageSrcInput = ko.observable('');
     self.imageWidthInput = ko.observable('');
     self.canAddImage = ko.observable(false);
@@ -1098,11 +1098,11 @@ async function uplaodDnDFiles(files, path, fileNames) {
                 }).done(function (response) {
                     var ext = getExtension(file.name);
                     if(validImgExtensions.includes(ext)){
-                        info = {name: response.data.attributes.name, path: response.data.attributes.path, url: response.data.links.download + '?mode=render'}
-                        infos.push(info)
+                        info = {name: response.data.attributes.name, path: response.data.attributes.path, url: response.data.links.download + '?mode=render'};
+                        infos.push(info);
                     }else {
-                        info = {name: response.data.attributes.name, path: response.data.attributes.path, url: fileBaseUrl}
-                        infos.push(info)
+                        info = {name: response.data.attributes.name, path: response.data.attributes.path, url: fileBaseUrl};
+                        infos.push(info);
                     }
                 }).fail(function (response) {
                     notUploaded(response, false);
@@ -1121,7 +1121,7 @@ async function getFileUrl(infos) {
     var multiple = infos.length > 1;
     if (infos.length !== 0) {
         $.each(infos, function (i, info) {
-            var fileUrl = wikiCtx.apiV2Prefix + 'files' + info.path
+            var fileUrl = wikiCtx.apiV2Prefix + 'files' + info.path;
             promises.push(
                 $.ajax({
                     url: fileUrl,
@@ -1131,7 +1131,7 @@ async function getFileUrl(infos) {
                 }).done(function (response) {
                     var ext = getExtension(info.name);
                     if(!(validImgExtensions.includes(ext))){
-                        info.url = response.data.links.html
+                        info.url = response.data.links.html;
                     }
                 }).fail(function (response) {
                     notUploaded(response, false);
@@ -1179,7 +1179,7 @@ async function localFileHandler(files) {
     var renderInfo;
     path = await getOrCreateWikiImagesFolder().fail(function(response) {
         notUploaded(response, multiple);
-    })
+    });
     fileNames = await $.ajax({
     // Check to makes sure we don't overwrite a file with the same name.
         url: wikiCtx.waterbutlerURL + 'v1/resources/' + wikiCtx.node.id + '/providers/osfstorage' + encodeURI(path) + '?meta=',
@@ -1194,7 +1194,7 @@ async function localFileHandler(files) {
 
     info = await uplaodDnDFiles(files, path, fileNames);
     renderInfo = await getFileUrl(info);
-    return renderInfo
+    return renderInfo;
 }
 
 function notUploaded(response, multiple) {
@@ -1224,7 +1224,7 @@ var WikiPageMilkdown = function(selector, options) {
             var rawContent = '';
             request.done(function (resp) {
                 if (resp.wiki_content){
-                    rawContent = resp.wiki_content
+                    rawContent = resp.wiki_content;
                 }
                 mEdit = createMEditor(mEdit, self.viewModel, rawContent);
             });
