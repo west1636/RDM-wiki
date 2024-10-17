@@ -22,6 +22,7 @@ import * as mPrism from '@milkdown/plugin-prism';
 import * as mIndent from '@milkdown/plugin-indent';
 import * as mUtils from '@milkdown/utils';
 import * as mCollab from '@milkdown/plugin-collab';
+import * as mCursor from '@milkdown/plugin-cursor';
 require('@milkdown/theme-nord/style.css');
 require('@milkdown/prose/view/style/prosemirror.css');
 require('@milkdown/prose/tables/style/tables.css');
@@ -168,6 +169,7 @@ async function createMEditor(editor, vm, template) {
         .use(mPrism.prism)
         .use(mIndent.indent)
         .use(mCollab.collab)
+        .use(mCursor.cursor)
         .use([extendedImageSchemaPlugin])
         .create();
 
