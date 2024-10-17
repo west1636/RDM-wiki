@@ -915,25 +915,6 @@ function ViewModel(options){
     var addImage = document.querySelector('#addImage');
     addImage.onclick = self.image.bind(self);
 
-    // MutationObserver setting
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.addedNodes.length > 0) {
-                const imageWidth = document.getElementById("imageWidth");
-                const imageLink = document.getElementById("imageLink");
-
-                if (imageWidth && imageLink) {
-                    imageWidth.addEventListener('blur', self.changeImage.bind(self));
-                    imageLink.addEventListener('blur', self.changeImage.bind(self));
-                }
-            }
-        });
-    });
-
-    const targetNode = document.body;
-    const config = { childList: true, subtree: true };
-    observer.observe(targetNode, config);
-
     document.addEventListener('mousedown', (event) => {
         if (!(event.target.closest('.tableWrapper')) && !(event.target.closest('#tableBtn'))) {
             document.getElementById("arrowDropDown").style.display = "none";
