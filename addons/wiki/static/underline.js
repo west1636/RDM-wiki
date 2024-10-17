@@ -2,7 +2,6 @@
 import { $inputRule, $command, $markSchema, $remark} from '@milkdown/utils';
 import { markRule } from '@milkdown/prose';
 import { toggleMark } from '@milkdown/prose/commands';
-import { InputRule } from '@milkdown/prose/inputrules';
 import { flatMap, isLiteral } from './utils.js'
 
 export const underlineSchema = $markSchema('underline', function () {
@@ -11,7 +10,7 @@ export const underlineSchema = $markSchema('underline', function () {
             { tag: 'u' },
             { style: 'text-decoration', getAttrs: value => value === 'underline' ? {} : false },
         ],
-        toDOM: mark => ['u', 0],
+        toDOM: () => ['u', 0],
         parseMarkdown: {
             match: node => node.type === 'underline',
             runner: (state, node, markType) => {
@@ -22,7 +21,7 @@ export const underlineSchema = $markSchema('underline', function () {
         },
         toMarkdown: {
             match: mark => mark.type.name === 'underline',
-            runner: (state, mark, node) => {
+            runner: (state, mark) => {
                 state.withMark(mark, 'underline')
             }
         }

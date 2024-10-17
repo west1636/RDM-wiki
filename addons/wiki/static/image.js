@@ -3,7 +3,6 @@
 import { $inputRule, $command} from '@milkdown/utils';
 import { InputRule } from '@milkdown/prose/inputrules';
 import { findSelectedNodeOfType } from '@milkdown/prose'
-import * as mCore from '@milkdown/core';
 import * as mCommonmark from '@milkdown/preset-commonmark';
 
 export const extendedImageSchemaPlugin = mCommonmark.imageSchema.extendSchema((prevSchema) => {

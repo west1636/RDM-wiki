@@ -9,7 +9,7 @@ export const linkInputRuleCosutom = $inputRule((ctx) => {
     return new InputRule(linkPattern, (state, match, start, end) => {
         if (!match) return null;
 
-        var [okay, text, href] = match;
+        var [text, href] = match;
         const { tr } = state;
         const markType = mCommonmark.linkSchema.type(ctx);
 

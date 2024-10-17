@@ -2,7 +2,6 @@
 var ko = require('knockout');
 var $ = require('jquery');
 var $osf = require('js/osfHelpers');
-var mdOld = require('js/markdown').old;
 var diffTool = require('js/diffTool');
 var _ = require('js/rdmGettext')._;
 var yjs = require('yjs');
@@ -10,10 +9,8 @@ var yWebsocket = require('y-websocket');
 var yIndexeddb = require('y-indexeddb');
 var yProseMirror = require('y-prosemirror');
 import * as mCore from '@milkdown/core';
-import { Ctx } from '@milkdown/ctx';
 import * as mCommonmark from '@milkdown/preset-commonmark';
 import * as mNord from '@milkdown/theme-nord';
-import * as mHistory from '@milkdown/plugin-history';
 import * as mEmoji from '@milkdown/plugin-emoji';
 import * as mUpload from '@milkdown/plugin-upload';
 import * as mMath from '@milkdown/plugin-math';
@@ -31,6 +28,7 @@ require('@milkdown/prose/tables/style/tables.css');
 require('katex/dist/katex.min.css')
 
 var THROTTLE = 500;
+var headNum = 1;
 var mEdit;
 var mView;
 var readonly = true;
@@ -45,7 +43,6 @@ const wikiId = (wikiCtx.wiki.wikiName === 'home') ? wikiCtx.node.id : window.con
 const wsPrefix = (window.location.protocol === 'https:') ? 'wss://' : 'ws://';
 const wsUrl = wsPrefix + window.contextVars.wiki.urls.y_websocket;
 
-import { NodeSelection } from '@milkdown/prose/state';
 import { underlineSchema, underlineInputRule, remarkUnderlineToMarkdown, remarkUnderlineFromMarkdown, toggleUnderlineCommand } from './underline.js';
 import { colortextSchema, colortextInputRule, remarkColortextToMarkdown, remarkColortextFromMarkdown, toggleColortextCommand } from './colortext.js';
 import { extendedImageSchemaPlugin, extendedInsertImageCommand, extendedUpdateImageCommand, updatedInsertImageInputRule } from './image.js';
@@ -134,8 +131,6 @@ async function createMEditor(editor, vm, template) {
                 enableHtmlFileUploader,
             }))
             const debouncedMarkdownUpdated = $osf.debounce(async (ctx, markdown, prevMarkdown) => {
-                const before = new Date();
-                const currentURL = window.location.href;
                 const compareWidgetElement = document.getElementById("compareWidget"); 
                 if (compareWidgetElement && compareWidgetElement.style.display !== 'none') {
                     vm.viewVM.displaySource(markdown);
@@ -148,7 +143,6 @@ async function createMEditor(editor, vm, template) {
                     undoElement.disabled = false;
                     document.getElementById("msoUndo").style.opacity = 1;
                 }
-                const after = new Date();
             }, 300);
             ctx.get(mListener.listenerCtx).markdownUpdated((ctx, markdown, prevMarkdown) => {
                 debouncedMarkdownUpdated(ctx, markdown, prevMarkdown);
@@ -276,7 +270,6 @@ function ViewWidget(visible, version, viewText, rendered, contentURL, allowMathj
 
                 request.done(function (resp) {
                     if(self.visible()) {
-                        var $markdownElement = $('#wikiViewRender');
                         if (resp.wiki_content){
                             var rawContent = resp.wiki_content
                         } else if(window.contextVars.currentUser.canEdit) {
@@ -568,7 +561,6 @@ function ViewModel(options){
         mEdit.action((ctx) => {
             var view = ctx.get(mCore.editorViewCtx);
             var state = view.state
-            var preUndoOps = state["y-undo$"]
             view.focus()
             yProseMirror.undo(state)
             if((state["y-undo$"].undoManager.undoStack).length === 0){
@@ -798,19 +790,16 @@ function ViewModel(options){
         mEdit.action((ctx) => {
             const view = ctx.get(mCore.editorViewCtx);
             const state = view.state;
-            const schema = ctx.get(mCore.schemaCtx);
             const parser = ctx.get(mCore.parserCtx);
     
             const nodes = view.state.doc.content.content;
 
-            var mokujiInfo = {}
             const mokuji = nodes
                 .filter(node => node.type.name === 'heading' && node.content && node.content.content[0])
                 .map(node => {
                     const headingText = node.content.content[0].text;
                     const headingId = node.attrs.id;
                     const headingLevel = node.attrs.level;
-                    mokujiInfo = { text: headingText, id: headingId, level: headingLevel }
 
                     const listPrefix = '* '.repeat(headingLevel);
                     return listPrefix + '[' + headingText + ']' + '(#' + headingId + ')';
@@ -862,7 +851,6 @@ function ViewModel(options){
         var cssArrow = document.getElementById("arrowDropDown").style.display;
         if(cssArrow === ''){
             document.getElementById("tableMenu").style.display = "";
-            var tableMenu = document.querySelector('#tableMenu');
 
         } else {
             mEdit.action((ctx) => {
@@ -1016,6 +1004,7 @@ function ViewModel(options){
         }).fail(function(xhr) {
             var resp = JSON.parse(xhr.responseText);
             var message = resp.message;
+            alert(message)
         });
     }
     self.imageSrcInput = ko.observable('');
@@ -1024,7 +1013,6 @@ function ViewModel(options){
     self.showSizeError = ko.observable(false);
 
     self.validateInputs = function () {
-        const src = self.imageSrcInput().trim();
         const width = self.imageWidthInput().trim();
     
         const sizePattern = /^(\d+|\d+%)$/;
@@ -1050,7 +1038,7 @@ function createFolder() {
         type: 'PUT',
         beforeSend: $osf.setXHRAuthorization,
     });
-};
+}
 
 /**
  * Checks to see whether there is already a 'Wiki images' folder for the current node
@@ -1068,7 +1056,8 @@ function getOrCreateWikiImagesFolder() {
         dataType: 'json'
     }).then(function(response) {
         if (response.data.length > 0) {
-            for (var i = 0, folder; folder = response.data[i]; i++) {
+            for (var i = 0, folder; (folder = response.data[i]); i++) {
+
                 var name = folder.attributes.name;
                 if (name === imageFolder) {
                     return folder.attributes.path;
@@ -1081,12 +1070,12 @@ function getOrCreateWikiImagesFolder() {
             });
         }
     });
-};
+}
 
 async function uplaodDnDFiles(files, path, fileNames) {
+    var multiple = files.length > 1;
 	var info = {};
     var infos = [];
-    var ext;
     var name;
     var fileBaseUrl = (window.contextVars.wiki.urls.base).replace('wiki', 'files');
     if (path) {
@@ -1107,13 +1096,11 @@ async function uplaodDnDFiles(files, path, fileNames) {
                     beforeSend: $osf.setXHRAuthorization,
                     data: file,
                 }).done(function (response) {
-                    var extUploaded = getExtension(response.data.attributes.name);
                     var ext = getExtension(file.name);
                     if(validImgExtensions.includes(ext)){
                         info = {name: response.data.attributes.name, path: response.data.attributes.path, url: response.data.links.download + '?mode=render'}
                         infos.push(info)
                     }else {
-                        var waterbutlerURL = wikiCtx.waterbutlerURL + 'v1/resources/' + wikiCtx.node.id + '/providers/osfstorage' + '/files' + response.data.attributes.path;
                         info = {name: response.data.attributes.name, path: response.data.attributes.path, url: fileBaseUrl}
                         infos.push(info)
                     }
@@ -1128,9 +1115,10 @@ async function uplaodDnDFiles(files, path, fileNames) {
     } else {
         notUploaded(null, multiple);
     }
-};
+}
 
 async function getFileUrl(infos) {
+    var multiple = infos.length > 1;
     if (infos.length !== 0) {
         $.each(infos, function (i, info) {
             var fileUrl = wikiCtx.apiV2Prefix + 'files' + info.path
@@ -1156,7 +1144,7 @@ async function getFileUrl(infos) {
     } else {
         notUploaded(null, multiple);
     }
-};
+}
 
 function autoIncrementFileName(name, nameList) {
     var num = 1;
@@ -1177,17 +1165,16 @@ function autoIncrementFileName(name, nameList) {
         break;
     }
     return newName;
-};
+}
 
 function getExtension(filename) {
     return /(?:\.([^.]+))?$/.exec(filename)[1];
-};
+}
 
 async function localFileHandler(files) {
     var multiple = files.length > 1;
     var fileNames = [];
     var path;
-    var response;
     var info;
     var renderInfo;
     path = await getOrCreateWikiImagesFolder().fail(function(response) {
@@ -1220,7 +1207,7 @@ function notUploaded(response, multiple) {
             'again or contact <a href="mailto: support@cos.io">support@cos.io</a> ' +
             'if the problem persists.', 'danger');
     }
-};
+}
 
 var WikiPageMilkdown = function(selector, options) {
     var self = this;

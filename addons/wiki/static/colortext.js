@@ -3,7 +3,6 @@
 import { $inputRule, $command, $markSchema, $remark } from '@milkdown/utils';
 import { markRule } from '@milkdown/prose';
 import { toggleMark } from '@milkdown/prose/commands';
-import { InputRule } from '@milkdown/prose/inputrules';
 import { flatMap, isLiteral } from './utils.js'
 
 export const colortextSchema = $markSchema('colortext', function () {
@@ -31,7 +30,7 @@ export const colortextSchema = $markSchema('colortext', function () {
       },
       toMarkdown: {
           match: mark => mark.type.name === 'colortext',
-          runner: (state, mark, node) => {
+          runner: (state, mark) => {
               state.withMark(mark, 'colortext', undefined, { color: mark.attrs.color })
           }
       }
