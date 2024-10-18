@@ -91,9 +91,6 @@ function assignSortOrderNumber(jsonData) {
 
 function ViewModel(data, totalCtn){
     var self = this;
-    console.log('---windowcontextvars---')
-    console.log(window.contextVars.wiki.urls.base)
-    console.log('---windowcontextvars---')
     self.url = window.contextVars.wiki.urls.base;
     self.data = data;
     self.beforeMove = function(obj) {
